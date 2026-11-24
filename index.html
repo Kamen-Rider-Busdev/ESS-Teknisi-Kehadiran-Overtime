@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GriyaNet - ESS Kehadiran & Overtime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f8fafc;
+      --topbar-bg: #1f2327;
+      --sidebar-bg: #ffffff;
+      --sidebar-border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary-blue: #2563eb;
+      --primary-blue-light: #eff6ff;
+      --brand-orange: #f59e0b;
+      --badge-red: #d9534f;
+      --badge-green: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background-color: var(--topbar-bg);
+      color: #ffffff;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #334155;
+    }
+
+    .topbar .brand {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--brand-orange);
+      letter-spacing: 0.3px;
+    }
+
+    .topbar .role-switcher-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .role-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .role-select {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #334155;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+    .user-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    /* LAYOUT WRAPPER */
+    .layout-body {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 52px);
+      overflow: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 250px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 16px 12px;
+      gap: 4px;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      padding: 10px 10px 4px 10px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      color: #475569;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .sidebar-item:hover {
+      background-color: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .sidebar-item.active {
+      background-color: var(--primary-blue-light);
+      color: var(--primary-blue);
+      font-weight: 600;
+    }
+
+    .sidebar-item.active svg {
+      stroke: var(--primary-blue);
+    }
+
+    .sidebar-subitem {
+      padding-left: 32px;
+      font-size: 13px;
+    }
+
+    .sidebar-item.logout {
+      color: #ef4444;
+      margin-top: auto;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 14px;
+    }
+    .sidebar-item.logout:hover {
+      background-color: #fef2f2;
+    }
+
+    .sidebar-item svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    /* MAIN CONTENT */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background-color: #ffffff;
+      padding: 24px 28px;
+    }
+
+    .view-pane {
+      display: none;
+    }
+    .view-pane.active {
+      display: block;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .page-desc {
+      color: #64748b;
+      font-size: 13.5px;
+    }
+
+    .role-badge-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .role-badge-teknisi { background: #dbeafe; color: #1e40af; }
+    .role-badge-bl { background: #fef3c7; color: #92400e; }
+    .role-badge-sa { background: #f3e8ff; color: #6b21a8; }
+
+    /* ACTION BAR */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .action-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      padding: 7px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      background: white;
+      color: #1e293b;
+      outline: none;
+    }
+    .filter-select:focus {
+      border-color: var(--primary-blue);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-blue);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-outline {
+      background-color: #ffffff;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+      background-color: #f8fafc;
+    }
+
+    .btn-amber {
+      background-color: #d97706;
+      color: #ffffff;
+    }
+    .btn-amber:hover {
+      background-color: #b45309;
+    }
+
+    .btn-orange {
+      background-color: #ea580c;
+      color: #ffffff;
+    }
+    .btn-orange:hover {
+      background-color: #c2410c;
+    }
+
+    .btn-success {
+      background-color: #059669;
+      color: #ffffff;
+    }
+    .btn-success:hover {
+      background-color: #047857;
+    }
+
+    /* LEGEND BADGES */
+    .legend-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #475569;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 7px 12px;
+      border-radius: 6px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-chip {
+      display: inline-block;
+      width: 19px;
+      height: 19px;
+      line-height: 19px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+    }
+    .legend-chip.h { background: var(--badge-green); color: white; }
+    .legend-chip.l { background: var(--badge-red); color: white; }
+    .legend-chip.s { background: #facc15; color: #854d0e; }
+    .legend-chip.i { background: #60a5fa; color: white; }
+    .legend-chip.c { background: #a855f7; color: white; }
+
+    /* ATTENDANCE MATRIX TABLE */
+    .matrix-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      background: #fff;
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .matrix-table thead th {
+      background: #5b54e0;
+      color: #ffffff;
+      font-weight: 600;
+      padding: 6px 3px;
+      border: 1px solid #6b63ea;
+    }
+
+    .matrix-table thead tr:first-child th.col-branch {
+      background: #c7d2fe;
+      color: #1e3a8a;
+      min-width: 90px;
+      vertical-align: middle;
+      position: sticky;
+      left: 0;
+      z-index: 3;
+    }
+
+    .matrix-table thead tr:first-child th.col-name {
+      background: #c7d2fe;
+      color: #1e3a8a;
+      min-width: 180px;
+      text-align: center;
+      vertical-align: middle;
+      position: sticky;
+      left: 90px;
+      z-index: 3;
+    }
+
+    .matrix-table thead tr:first-child th.col-divisi {
+      background: #c7d2fe;
+      color: #1e3a8a;
+      width: 50px;
+      vertical-align: middle;
+      position: sticky;
+      left: 270px;
+      z-index: 3;
+    }
+
+    .matrix-table thead tr:first-child th.col-date {
+      min-width: 30px;
+    }
+
+    .matrix-table thead tr:first-child th.col-rekap {
+      background: #4f46e5;
+      min-width: 140px;
+    }
+
+    .matrix-table thead tr.sub-header th {
+      background: #4f46e5;
+      font-size: 10px;
+      font-weight: 500;
+      color: #e0e7ff;
+      padding: 4px 2px;
+    }
+    .matrix-table thead tr.sub-header th.rekap-item {
+      background: #4338ca;
+      font-size: 11px;
+      font-weight: 700;
+      width: 26px;
+    }
+
+    .matrix-table tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background 0.1s ease;
+    }
+    .matrix-table tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .matrix-table tbody td {
+      padding: 5px 2px;
+      border: 1px solid #e2e8f0;
+      font-size: 11.5px;
+      color: #334155;
+    }
+
+    .matrix-table tbody td.cell-branch {
+      position: sticky;
+      left: 0;
+      background: #f8fafc;
+      z-index: 2;
+      font-weight: 600;
+      color: #475569;
+      border-right: 1px solid #cbd5e1;
+    }
+
+    .matrix-table tbody td.cell-name {
+      text-align: left;
+      padding-left: 10px;
+      font-weight: 500;
+      color: #1e293b;
+      position: sticky;
+      left: 90px;
+      background: #f8fafc;
+      z-index: 2;
+      border-right: 1px solid #cbd5e1;
+    }
+
+    .matrix-table tbody td.cell-divisi {
+      font-weight: 600;
+      position: sticky;
+      left: 270px;
+      background: #f8fafc;
+      z-index: 2;
+      border-right: 1px solid #cbd5e1;
+      color: #64748b;
+    }
+
+    .matrix-table tbody tr:hover td.cell-branch,
+    .matrix-table tbody tr:hover td.cell-name,
+    .matrix-table tbody tr:hover td.cell-divisi {
+      background-color: #f1f5f9;
+    }
+
+    .badge-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      transition: transform 0.1s ease;
+      user-select: none;
+    }
+    .badge-cell:hover {
+      transform: scale(1.15);
+    }
+    .badge-hadir { background-color: var(--badge-green); color: #fff; }
+    .badge-off { background-color: var(--badge-red); color: #fff; }
+
+    .matrix-table tfoot tr {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .matrix-table tfoot td {
+      padding: 8px 4px;
+      border: 1px solid #cbd5e1;
+    }
+    .matrix-table tfoot td.footer-label {
+      text-align: left;
+      padding-left: 10px;
+      position: sticky;
+      left: 0;
+      background: #f1f5f9;
+      z-index: 2;
+    }
+
+    /* CARD & GENERAL TABLE */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+      background: #fff;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .std-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .std-table th {
+      background: #f8fafc;
+      color: #475569;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+    }
+    .std-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+    }
+    .std-table tr:hover {
+      background-color: #fafbfc;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .status-pill.approved { background: #dcfce7; color: #15803d; }
+    .status-pill.pending { background: #fef9c3; color: #a16207; }
+    .status-pill.rejected { background: #fee2e2; color: #b91c1c; }
+
+    /* MODAL POPUPS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal-card {
+      background: #ffffff;
+      width: 580px;
+      max-width: 94vw;
+      border-radius: 10px;
+      padding: 22px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .checklog-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .checklog-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .checklog-card.done { border-left: 4px solid #10b981; }
+    .checklog-card.empty { border-left: 4px solid #cbd5e1; opacity: 0.7; }
+    .checklog-left { display: flex; align-items: center; gap: 10px; }
+    .checklog-icon {
+      width: 30px; height: 30px; border-radius: 6px; background: #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12.5px; color: #475569;
+    }
+    .checklog-card.done .checklog-icon { background: #d1fae5; color: #065f46; }
+    .checklog-title { font-size: 13px; font-weight: 600; color: #1e293b; }
+    .checklog-subtitle { font-size: 11px; color: #64748b; }
+    .checklog-time { font-size: 13.5px; font-weight: 700; color: #0f172a; }
+
+    .koreksi-panel {
+      display: none;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+    .koreksi-panel.show { display: block; }
+    .notice-box {
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 11.5px;
+      color: #92400e;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .quota-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 11px;
+      background: #ffffff;
+      color: #b45309;
+      border: 1px solid #fcd34d;
+    }
+    .checkpoint-select-row {
+      display: grid;
+      grid-template-columns: 24px 1fr 110px;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px dashed #fcd34d;
+      font-size: 12px;
+    }
+
+    /* TOAST ALERT */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+      font-size: 13.5px;
+      display: none;
+      z-index: 1000;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* KELOLA JADWAL MODAL STYLES (MATCH DESIGN SCREENSHOT) */
+    .modal-card-admin {
+      background: #f8fafc;
+      width: 980px;
+      max-width: 96vw;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-height: 94vh;
+      overflow-y: auto;
+    }
+    .admin-title-head {
+      font-size: 24px;
+      font-weight: 700;
+      color: #6366f1;
+      margin-bottom: 2px;
+    }
+    .admin-sub-head {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .admin-nav-bar {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+      margin: 18px 0;
+    }
+    .admin-tab-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: #f1f5f9;
+      color: #475569;
+      transition: all 0.15s ease;
+    }
+    .admin-tab-btn.active {
+      background: #5b54e0;
+      color: #ffffff;
+    }
+    .admin-submode-pill {
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #475569;
+      cursor: pointer;
+    }
+    .admin-submode-pill.active {
+      border-color: #6366f1;
+      background: #eff6ff;
+      color: #4338ca;
+    }
+    .karyawan-checklist-box {
+      max-height: 240px;
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .karyawan-check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .karyawan-check-item:hover {
+      background: #f8fafc;
+    }
+    .karyawan-name-bold {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .karyawan-role-desc {
+      font-size: 11.5px;
+      color: #64748b;
+    }
+    .tag-tanggal-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .tag-tanggal-remove {
+      cursor: pointer;
+      font-weight: 700;
+      color: #4338ca;
+    }
+    .tag-tanggal-remove:hover {
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR WITH ROLE SWITCHER -->
+  <header class="topbar">
+    <div class="brand">GriyaNet - ESS System</div>
+    <div class="role-switcher-box">
+      <span class="role-label">Simulasi Login Role:</span>
+      <select class="role-select" id="roleSelector" onchange="switchRole(this.value)">
+        <option value="teknisi">1. Teknisi (Damar)</option>
+        <option value="bl" selected>2. Branch Leader (Haryo Danu - BL Timur)</option>
+        <option value="sa">3. Super Admin (Admin Pusat)</option>
+      </select>
+      <div class="user-pill">
+        <span class="user-dot"></span>
+        <span id="topbarUserName">BL - Haryo Danu</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- BODY LAYOUT -->
+  <div class="layout-body">
+    <!-- DYNAMIC SIDEBAR (ONLY KEHADIRAN & OVERTIME) -->
+    <aside class="sidebar" id="sidebarMenu">
+      <!-- Section title -->
+      <div class="sidebar-section-title">KEHADIRAN &amp; OVERTIME</div>
+
+      <!-- 1. JADWAL & KEHADIRAN (SEMUA ROLE) -->
+      <a class="sidebar-item active" data-tab="tab-jadwal-kehadiran">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Jadwal Kehadiran
+      </a>
+
+      <!-- 2. TEKNISI ONLY: HISTORY OVERTIME -->
+      <a class="sidebar-item role-item role-teknisi-only" data-tab="tab-ot-history-pribadi" style="display: none;">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        History Overtime Saya
+      </a>
+
+      <!-- 3. BRANCH LEADER ONLY: PENGAJUAN & MONITORING OVERTIME CABANG -->
+      <a class="sidebar-item role-item role-bl-only" data-tab="tab-ot-pengajuan-bl">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        Pengajuan Overtime
+      </a>
+
+      <!-- 4. SUPER ADMIN ONLY: SUB-MENU OVERTIME NASIONAL -->
+      <div class="role-item role-sa-only" style="display: none;">
+        <div class="sidebar-section-title" style="padding-top:14px;">OVERTIME NASIONAL</div>
+        <a class="sidebar-item sidebar-subitem" data-tab="tab-sa-list-pengajuan">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          List Pengajuan
+        </a>
+        <a class="sidebar-item sidebar-subitem" data-tab="tab-sa-history-validasi">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          History Validasi
+        </a>
+      </div>
+
+      <a class="sidebar-item logout" onclick="alert('Logout simulasi session')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Logout
+      </a>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="content-area">
+
+      <!-- ========================================== -->
+      <!-- PANE 1: JADWAL KEHADIRAN (ADAPTIF ROLE)   -->
+      <!-- ========================================== -->
+      <div id="tab-jadwal-kehadiran" class="view-pane active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Jadwal &amp; Monitoring Kehadiran</h1>
+            <p class="page-desc" id="jadwalSubDesc">
+              Matriks presensi teknisi: <strong>H</strong> (Hadir), <strong>L</strong> (Libur), <strong>S</strong> (Sakit), <strong>A</strong> (Alpa), <strong>I</strong> (Izin), <strong>C</strong> (Cuti).
+            </p>
+          </div>
+          <div id="roleHeaderBadge" class="role-badge-indicator role-badge-bl">
+            Role Aktif: Branch Leader (BL)
+          </div>
+        </div>
+
+        <!-- ACTION BAR -->
+        <div class="action-bar">
+          <div class="action-bar-left">
+            <!-- FILTER BULAN & TAHUN (SESUAI GAMBAR REFERENSI, TANPA TOMBOL TERAPKAN) -->
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:13px; font-weight:500; color:#1e293b;">Bulan:</span>
+              <select class="filter-select" id="select-bulan" style="min-width:130px;" onchange="showToast('Periode bulan diubah ke ' + this.options[this.selectedIndex].text)">
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11" selected>November</option>
+                <option value="12">Desember</option>
+              </select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:13px; font-weight:500; color:#1e293b;">Tahun:</span>
+              <input type="number" id="input-tahun" class="filter-select" value="2026" min="2020" max="2035" style="width:84px;" onchange="showToast('Tahun diubah ke ' + this.value)">
+            </div>
+
+            <!-- FILTER BRANCH KHUSUS SUPER ADMIN -->
+            <select class="filter-select" id="select-branch-sa" style="display:none;" onchange="filterBranch(this.value)">
+              <option value="ALL">Semua Branch (Pusat / Rayon)</option>
+              <option value="Timur">Branch Rayon Timur</option>
+              <option value="Barat">Branch Rayon Barat</option>
+              <option value="Selatan">Branch Rayon Selatan</option>
+            </select>
+
+            <select class="filter-select" id="select-divisi" onchange="filterDivisi(this.value)">
+              <option value="ALL">Semua Divisi (BA / BI / PS)</option>
+              <option value="BA">Divisi BA</option>
+              <option value="BI">Divisi BI</option>
+              <option value="PS">Divisi PS</option>
+            </select>
+
+            <div class="legend-box">
+              <span style="font-weight: 600; color:#334155;">Keterangan:</span>
+              <div class="legend-item"><span class="legend-chip h">H</span> Hadir</div>
+              <div class="legend-item"><span class="legend-chip l">L</span> Libur</div>
+              <div class="legend-item"><span class="legend-chip s">S</span> Sakit</div>
+              <div class="legend-item"><span class="legend-chip i">I</span> Izin</div>
+              <div class="legend-item"><span class="legend-chip c">C</span> Cuti</div>
+            </div>
+          </div>
+
+          <!-- ACTION BUTTONS SESUAI ROLE -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <!-- EXPORT EXCEL (HANYA SUPER ADMIN) -->
+            <button class="btn btn-outline" id="btnExportExcel" onclick="showToast('Export Excel kehadiran berhasil diunduh.')" style="display:none;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Export Excel (SA)
+            </button>
+
+            <!-- KELOLA JADWAL KEHADIRAN (HANYA BRANCH LEADER) -->
+            <button class="btn btn-primary" id="btnAjukanIzinBL" onclick="openModalAdminJadwal()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Kelola Jadwal Kehadiran (BL)
+            </button>
+          </div>
+        </div>
+
+        <!-- MATRIX TABLE WRAPPER -->
+        <div class="matrix-wrapper">
+          <table class="matrix-table" id="matrixTable">
+            <thead>
+              <tr>
+                <th rowspan="2" class="col-branch">Branch</th>
+                <th rowspan="2" class="col-name">Nama Teknisi</th>
+                <th rowspan="2" class="col-divisi">Divisi</th>
+                <th class="col-date">1</th><th class="col-date">2</th><th class="col-date">3</th><th class="col-date">4</th>
+                <th class="col-date">5</th><th class="col-date">6</th><th class="col-date">7</th><th class="col-date">8</th>
+                <th class="col-date">9</th><th class="col-date">10</th><th class="col-date">11</th><th class="col-date">12</th>
+                <th class="col-date">13</th><th class="col-date">14</th><th class="col-date">15</th><th class="col-date">16</th>
+                <th class="col-date">17</th><th class="col-date">18</th><th class="col-date">19</th><th class="col-date">20</th>
+                <th class="col-date">21</th><th class="col-date">22</th><th class="col-date">23</th><th class="col-date">24</th>
+                <th class="col-date">25</th><th class="col-date">26</th><th class="col-date">27</th><th class="col-date">28</th>
+                <th class="col-date">29</th><th class="col-date">30</th>
+                <th colspan="6" class="col-rekap">Rekap</th>
+              </tr>
+              <tr class="sub-header">
+                <th>Min</th><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th>
+                <th>Min</th><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th>
+                <th>Min</th><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th>
+                <th>Min</th><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th>
+                <th>Min</th><th>Sen</th>
+                <th class="rekap-item" style="background:#059669;">H</th>
+                <th class="rekap-item">L</th><th class="rekap-item">S</th><th class="rekap-item">A</th>
+                <th class="rekap-item">I</th><th class="rekap-item">C</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTbody">
+              <!-- TEKNISI 1 -->
+              <tr data-branch="Timur" data-divisi="BA">
+                <td class="cell-branch">Timur</td>
+                <td class="cell-name">R. Billiyan Mulkan Ghifari</td>
+                <td class="cell-divisi">BA</td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '01 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '02 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '03 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '04 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '05 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '06 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '07 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '08 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '09 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '10 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '11 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '12 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '13 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '14 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '15 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '16 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '17 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '18 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '19 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '20 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '21 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '22 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '23 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '24 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '25 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '26 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '27 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '28 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '29 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('R. Billiyan Mulkan Ghifari', '30 Juni 2026', 'H')">H</span></td>
+                <td><strong>26</strong></td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td>
+              </tr>
+
+              <!-- TEKNISI 2: DAMAR (PROFIL TEKNISI LOGIN) -->
+              <tr data-branch="Timur" data-divisi="BA">
+                <td class="cell-branch">Timur</td>
+                <td class="cell-name">Damar (Akun Teknisi Anda)</td>
+                <td class="cell-divisi">BA</td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '01 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '02 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '03 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '04 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '05 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '06 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '07 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '08 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '09 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '10 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '11 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '12 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '13 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '14 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '15 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '16 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '17 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '18 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '19 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '20 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '21 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '22 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '23 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '24 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '25 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '26 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '27 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '28 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '29 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Damar (Akun Teknisi Anda)', '30 Juni 2026', 'H')">H</span></td>
+                <td><strong>26</strong></td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td>
+              </tr>
+
+              <!-- TEKNISI 3: BRANCH BARAT -->
+              <tr data-branch="Barat" data-divisi="BI">
+                <td class="cell-branch">Barat</td>
+                <td class="cell-name">Nur Huda Riyanto</td>
+                <td class="cell-divisi">BI</td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '01 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '02 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '03 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '04 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '05 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '06 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '07 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Nur Huda Riyanto', '08 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '09 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '10 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '11 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '12 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '13 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '14 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Nur Huda Riyanto', '15 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '16 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '17 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '18 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '19 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '20 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Nur Huda Riyanto', '21 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '22 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '23 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '24 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '25 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '26 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '27 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '28 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Nur Huda Riyanto', '29 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Nur Huda Riyanto', '30 Juni 2026', 'L')">L</span></td>
+                <td><strong>26</strong></td><td>4</td><td>0</td><td>0</td><td>0</td><td>0</td>
+              </tr>
+
+              <!-- TEKNISI 4: BRANCH SELATAN -->
+              <tr data-branch="Selatan" data-divisi="PS">
+                <td class="cell-branch">Selatan</td>
+                <td class="cell-name">Aisha Rahmadia Aqilah</td>
+                <td class="cell-divisi">PS</td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '01 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '02 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '03 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '04 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '05 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '06 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '07 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '08 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '09 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '10 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '11 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '12 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '13 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '14 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '15 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '16 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '17 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '18 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '19 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '20 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '21 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '22 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '23 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '24 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '25 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '26 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '27 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-off" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '28 Juni 2026', 'L')">L</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '29 Juni 2026', 'H')">H</span></td>
+                <td><span class="badge-cell badge-hadir" onclick="viewCheckLog('Aisha Rahmadia Aqilah', '30 Juni 2026', 'H')">H</span></td>
+                <td><strong>25</strong></td><td>5</td><td>0</td><td>0</td><td>0</td><td>0</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="footer-label" colspan="3">Total Libur (L)</td>
+                <td>0</td><td>1</td><td>-</td><td>-</td><td>-</td><td>-</td><td>2</td><td>2</td>
+                <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>3</td><td>-</td>
+                <td>-</td><td>-</td><td>-</td><td>1</td><td>3</td><td>-</td><td>-</td><td>-</td>
+                <td>-</td><td>-</td><td>-</td><td>2</td><td>-</td><td>1</td>
+                <td colspan="6"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANE 2: HISTORY OVERTIME SAYA (TEKNISI)   -->
+      <!-- ========================================== -->
+      <div id="tab-ot-history-pribadi" class="view-pane">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">History Overtime Saya</h1>
+            <p class="page-desc">Catatan riwayat lembur pekerjaan lapangan khusus akun Anda (Damar).</p>
+          </div>
+          <span class="role-badge-indicator role-badge-teknisi">Role: Teknisi Lapangan</span>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:10px;">
+            <h3 class="card-title" style="margin:0;">
+              <svg width="18" height="18" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Log Lembur Mandiri (Bulan Berjalan)
+            </h3>
+            <span style="font-size:12px; color:#64748b;" id="countFilterOTPribadi">Total Terbayar Bulan Ini: <strong>12.5 Jam</strong></span>
+          </div>
+
+          <!-- FILTER BULAN, TAHUN, STATUS (HISTORY OVERTIME TEKNISI) -->
+          <div class="action-bar" style="margin-bottom: 14px; background:#f8fafc; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div class="action-bar-left">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Bulan:</span>
+                <select class="filter-select" id="filterOTPribadiBulan" onchange="filterRiwayatOTPribadi()">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="11" selected>November</option>
+                  <option value="10">Oktober</option>
+                  <option value="09">September</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Tahun:</span>
+                <select class="filter-select" id="filterOTPribadiTahun" onchange="filterRiwayatOTPribadi()">
+                  <option value="2026" selected>2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Status:</span>
+                <select class="filter-select" id="filterOTPribadiStatus" onchange="filterRiwayatOTPribadi()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="APPROVED">Approved Super Admin</option>
+                  <option value="PENDING">Pending Approval SA</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
+            </div>
+            <span style="font-size:12px; color:#64748b;" id="infoFilterOTPribadi">Menampilkan 4 catatan</span>
+          </div>
+
+          <table class="std-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tanggal Lembur</th>
+                <th>Durasi</th>
+                <th>Grade</th>
+                <th>Fee Lembur</th>
+                <th>Problem</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyOTPribadi">
+              <tr data-no="1" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="15 Nov 2026" data-start="18:00" data-end="21:00" data-durasi="3.0 Jam" data-grade="Grade A" data-fee="Rp. 150.000" data-problem="Emergency FO Cut tertabrak dahan pohon" data-deskripsi="Kabel fiber optik distribusi 24 core terputus tertimpa dahan tumbang di Jl. Veteran." data-action="Splicing ulang 12 core aktif dan proteksi closure di tiang ODP-VET-04." data-ket="WO-TRB-991 selesai dalam waktu 3 jam, redaman normal kembali -18 dBm." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>1</td>
+                <td>15 Nov 2026</td>
+                <td>3.0 Jam</td>
+                <td><span class="status-pill" style="background:#dcfce7; color:#166534; font-weight:700;">Grade A</span></td>
+                <td><strong style="color:#059669;">Rp. 150.000</strong></td>
+                <td>Emergency FO Cut tertabrak dahan pohon</td>
+                <td><span class="status-pill approved">Approved Super Admin</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="2" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="11 Nov 2026" data-start="17:30" data-end="21:00" data-durasi="3.5 Jam" data-grade="Grade B" data-fee="Rp. 100.000" data-problem="Migrasi Core OLT Rayon Timur" data-deskripsi="Pekerjaan cutover jalur uplink OLT Huawei ke switch aggregation baru." data-action="Patching fiber jumper baru, verifikasi link status dan pengujian throughput." data-ket="WO-TRB-920, seluruh pelanggan Cluster Mawar live tanpa kendala." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>2</td>
+                <td>11 Nov 2026</td>
+                <td>3.5 Jam</td>
+                <td><span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span></td>
+                <td><strong style="color:#2563eb;">Rp. 100.000</strong></td>
+                <td>Migrasi Core OLT Rayon Timur</td>
+                <td><span class="status-pill approved">Approved Super Admin</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="3" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="06 Nov 2026" data-start="18:00" data-end="22:00" data-durasi="4.0 Jam" data-grade="Grade B" data-fee="Rp. 100.000" data-problem="Perbaikan redaman loss tinggi backbone" data-deskripsi="Redaman segmen feeder FAT-DAMAR-12 melonjak hingga -31 dBm." data-action="Cleaning konektor pigtail dan re-cleaving sambungan core nomor 4 & 5." data-ket="WO-TRB-871, redaman turun menjadi standar -19 dBm." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>3</td>
+                <td>06 Nov 2026</td>
+                <td>4.0 Jam</td>
+                <td><span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span></td>
+                <td><strong style="color:#2563eb;">Rp. 100.000</strong></td>
+                <td>Perbaikan redaman loss tinggi backbone</td>
+                <td><span class="status-pill approved">Approved Super Admin</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="4" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="16 Nov 2026" data-start="18:00" data-end="20:00" data-durasi="2.0 Jam" data-grade="-" data-fee="-" data-problem="Pemasangan Baru overload shift sore" data-deskripsi="Antrean pasang baru 3 pelanggan segmen perumahan belum terselesaikan sebelum jam 17:00." data-action="Tarik kabel dropcore 150m, pasang roset & setting modem ONT." data-ket="WO-TRB-1002, menunggu validasi grade & fee dari Super Admin." data-bulan="11" data-tahun="2026" data-status="PENDING">
+                <td>4</td>
+                <td>16 Nov 2026</td>
+                <td>2.0 Jam</td>
+                <td><span class="status-pill" style="background:#f1f5f9; color:#64748b;">-</span></td>
+                <td><span style="color:#94a3b8;">-</span></td>
+                <td>Pemasangan Baru overload shift sore</td>
+                <td><span class="status-pill pending">Pending Approval SA</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANE 3: PENGAJUAN & HISTORY OVERTIME (BL) -->
+      <!-- ========================================== -->
+      <div id="tab-ot-pengajuan-bl" class="view-pane">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Manajemen Overtime Teknisi Cabang</h1>
+            <p class="page-desc">Monitoring dan pengajuan lembur teknisi di Branch Rayon Timur.</p>
+          </div>
+          <span class="role-badge-indicator role-badge-bl">Role: Branch Leader (BL)</span>
+        </div>
+
+        <!-- RIWAYAT OVERTIME CABANG DENGAN FILTER & TOMBOL PENGAJUAN -->
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+            <h3 class="card-title" style="margin:0;">
+              <svg width="18" height="18" fill="none" stroke="#059669" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Riwayat Overtime Seluruh Teknisi (Branch Rayon Timur)
+            </h3>
+            <!-- TOMBOL BUKA MODAL PENGAJUAN DI ATAS TABEL -->
+            <button class="btn btn-amber" onclick="openModalPengajuanOT()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              + Pengajuan Lembur
+            </button>
+          </div>
+
+          <!-- FILTER: NAMA TEKNISI, BULAN, TAHUN, STATUS -->
+          <div class="action-bar" style="margin-bottom: 14px; background:#f8fafc; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div class="action-bar-left">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Teknisi:</span>
+                <select class="filter-select" id="filterOTTeknisi" onchange="filterRiwayatOTBL()">
+                  <option value="ALL">Semua Teknisi</option>
+                  <option value="Damar">Damar</option>
+                  <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+                  <option value="Dedik Hasanah Wijaya">Dedik Hasanah Wijaya</option>
+                  <option value="Yusuf Ananta Tirtojojo">Yusuf Ananta Tirtojojo</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Bulan:</span>
+                <select class="filter-select" id="filterOTBulan" onchange="filterRiwayatOTBL()">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="11" selected>November</option>
+                  <option value="10">Oktober</option>
+                  <option value="09">September</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Tahun:</span>
+                <select class="filter-select" id="filterOTTahun" onchange="filterRiwayatOTBL()">
+                  <option value="2026" selected>2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Status:</span>
+                <select class="filter-select" id="filterOTBLStatus" onchange="filterRiwayatOTBL()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="APPROVED">Approved SA</option>
+                  <option value="PENDING">Pending Approval SA</option>
+                  <option value="REJECTED">Ditolak SA</option>
+                </select>
+              </div>
+            </div>
+            <span style="font-size:12px; color:#64748b;" id="countFilterOTBL">Menampilkan data lembur cabang</span>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="std-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Tanggal Lembur</th>
+                  <th>Durasi</th>
+                  <th>Grade</th>
+                  <th>Fee Lembur</th>
+                  <th>Problem</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="otTableBodyBL">
+                <tr data-no="1" data-branch="Rayon Timur" data-teknisi="R. Billiyan Mulkan Ghifari" data-tgl="16 Nov 2026" data-start="18:30" data-end="21:30" data-durasi="3.0 Jam" data-grade="Grade B" data-fee="Rp. 100.000" data-problem="Splicing ODP-DAMAR-04" data-deskripsi="Penanganan core putus akibat tersangkut kendaraan muatan tinggi." data-action="Jointing closure ulang di tiang distribusi ODP-DAMAR-04." data-ket="Link 16 pelanggan kembali UP dengan loss normal." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                  <td>1</td>
+                  <td><strong>R. Billiyan Mulkan Ghifari</strong></td>
+                  <td>16 Nov 2026</td>
+                  <td>3.0 Jam</td>
+                  <td><span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span></td>
+                  <td><strong style="color:#2563eb;">Rp. 100.000</strong></td>
+                  <td>Splicing ODP-DAMAR-04</td>
+                  <td><span class="status-pill approved">Approved SA</span></td>
+                  <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+                </tr>
+                <tr data-no="2" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="15 Nov 2026" data-start="18:00" data-end="21:00" data-durasi="3.0 Jam" data-grade="Grade A" data-fee="Rp. 150.000" data-problem="Emergency FO Cut tertabrak dahan" data-deskripsi="Kabel fiber optik distribusi 24 core terputus tertimpa dahan tumbang di Jl. Veteran." data-action="Splicing ulang 12 core aktif dan proteksi closure di tiang ODP-VET-04." data-ket="WO-TRB-991, penanganan darurat tuntas sesuai SLA 3 jam." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                  <td>2</td>
+                  <td><strong>Damar</strong></td>
+                  <td>15 Nov 2026</td>
+                  <td>3.0 Jam</td>
+                  <td><span class="status-pill" style="background:#dcfce7; color:#166534; font-weight:700;">Grade A</span></td>
+                  <td><strong style="color:#059669;">Rp. 150.000</strong></td>
+                  <td>Emergency FO Cut tertabrak dahan</td>
+                  <td><span class="status-pill approved">Approved SA</span></td>
+                  <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+                </tr>
+                <tr data-no="3" data-branch="Rayon Timur" data-teknisi="Dedik Hasanah Wijaya" data-tgl="14 Nov 2026" data-start="19:00" data-end="22:00" data-durasi="3.0 Jam" data-grade="Grade B" data-fee="Rp. 100.000" data-problem="Restorasi Redaman Core FO" data-deskripsi="Redaman distribusi drop drastis hingga tidak sinkron." data-action="Re-splicing pigtail di OTB branch dan kalibrasi power meter." data-ket="Redaman stabil kembali pada -18.5 dBm." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                  <td>3</td>
+                  <td><strong>Dedik Hasanah Wijaya</strong></td>
+                  <td>14 Nov 2026</td>
+                  <td>3.0 Jam</td>
+                  <td><span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span></td>
+                  <td><strong style="color:#2563eb;">Rp. 100.000</strong></td>
+                  <td>Restorasi Redaman Core FO</td>
+                  <td><span class="status-pill approved">Approved SA</span></td>
+                  <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+                </tr>
+                <tr data-no="4" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="16 Nov 2026" data-start="18:00" data-end="20:00" data-durasi="2.0 Jam" data-grade="-" data-fee="-" data-problem="Instalasi Pasang Baru Pendingan" data-deskripsi="Antrean pasang baru 3 pelanggan shift sore belum terselesaikan." data-action="Tarik kabel dropcore 150m, pasang roset & setting modem ONT." data-ket="Pengajuan menunggu review grade & approval Super Admin." data-bulan="11" data-tahun="2026" data-status="PENDING">
+                  <td>4</td>
+                  <td><strong>Damar</strong></td>
+                  <td>16 Nov 2026</td>
+                  <td>2.0 Jam</td>
+                  <td><span class="status-pill" style="background:#f1f5f9; color:#64748b;">-</span></td>
+                  <td><span style="color:#94a3b8;">-</span></td>
+                  <td>Instalasi Pasang Baru Pendingan</td>
+                  <td><span class="status-pill pending">Pending Approval SA</span></td>
+                  <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANE 4: SUPER ADMIN - LIST PENGAJUAN      -->
+      <!-- ========================================== -->
+      <div id="tab-sa-list-pengajuan" class="view-pane">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">List Pengajuan Overtime Nasional</h1>
+            <p class="page-desc">Daftar pengajuan overtime pending dari seluruh cabang yang memerlukan review dan approval pusat.</p>
+          </div>
+          <span class="role-badge-indicator role-badge-sa">Role: Super Admin (Pusat)</span>
+        </div>
+
+        <div class="card">
+          <div class="action-bar" style="margin-bottom: 12px;">
+            <div class="action-bar-left">
+              <select class="filter-select">
+                <option>Semua Branch (Pusat, Timur, Barat, Selatan)</option>
+                <option>Branch Rayon Timur</option>
+                <option>Branch Rayon Barat</option>
+                <option>Branch Rayon Selatan</option>
+              </select>
+              <select class="filter-select">
+                <option>Semua Kategori (Emergency, Migrasi, Overload)</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="std-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Branch</th>
+                <th>Nama Teknisi</th>
+                <th>Tanggal</th>
+                <th>Jam Lembur</th>
+                <th>Durasi</th>
+                <th>Aktivitas &amp; Alasan</th>
+                <th>Pengaju (BL)</th>
+                <th>Aksi Super Admin</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyPengajuanSA">
+              <tr data-id="1" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="16 Nov 2026" data-start="18:00" data-end="20:00" data-durasi="2.0 Jam" data-problem="Instalasi Pasang Baru overload shift sore" data-deskripsi="Antrian instalasi sambungan baru melonjak tajam setelah gangguan kabel feeder di sub-rayon." data-action="Penyambungan drop core 3 pelanggan prioritas hingga status redaman optimal." data-ket="WO-PB-1049, diselesaikan sebelum pukul 20:00." data-bl="Haryo Danu (BL)">
+                <td>1</td>
+                <td><strong>Rayon Timur</strong></td>
+                <td>Damar</td>
+                <td>16 Nov 2026</td>
+                <td>18:00 - 20:00</td>
+                <td>2.0 Jam</td>
+                <td>Instalasi Pasang Baru overload shift sore</td>
+                <td>Haryo Danu (BL)</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-success" style="padding:4px 8px; font-size:11px;" onclick="openModalApproveSA(this)">Approve</button>
+                    <button class="btn btn-outline" style="padding:4px 8px; font-size:11px; color:#ef4444;" onclick="rejectSA(this)">Tolak</button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-id="2" data-branch="Rayon Barat" data-teknisi="Nur Huda Riyanto" data-tgl="16 Nov 2026" data-start="18:00" data-end="22:30" data-durasi="4.5 Jam" data-problem="Relokasi OLT Down dampak galian drainase" data-deskripsi="Galian gorong-gorong proyek PUPR memutuskan feeder 48 core dekat sentral mini OLT." data-action="Penarikan rute kabel bypass darurat sepanjang 150 meter dan proteksi OTB." data-ket="Pekerjaan darurat malam hari, link OLT kembali hijau." data-bl="Bambang (BL)">
+                <td>2</td>
+                <td><strong>Rayon Barat</strong></td>
+                <td>Nur Huda Riyanto</td>
+                <td>16 Nov 2026</td>
+                <td>18:00 - 22:30</td>
+                <td>4.5 Jam</td>
+                <td>Relokasi OLT Down dampak galian drainase</td>
+                <td>Bambang (BL)</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-success" style="padding:4px 8px; font-size:11px;" onclick="openModalApproveSA(this)">Approve</button>
+                    <button class="btn btn-outline" style="padding:4px 8px; font-size:11px; color:#ef4444;" onclick="rejectSA(this)">Tolak</button>
+                  </div>
+                </td>
+              </tr>
+              <tr data-id="3" data-branch="Rayon Selatan" data-teknisi="Aisha Rahmadia Aqilah" data-tgl="17 Nov 2026" data-start="19:00" data-end="21:00" data-durasi="2.0 Jam" data-problem="Emergency penanganan kabel putus tiang utama" data-deskripsi="Truk kontainer menyenggol span kabel antar tiang dekat perlintasan rel kereta." data-action="Pengangkatan span kabel dan penambahan clamp penegang di tiang crossing." data-ket="Kabel aman dan terproteksi dari lalu lintas tinggi." data-bl="Citra (BL)">
+                <td>3</td>
+                <td><strong>Rayon Selatan</strong></td>
+                <td>Aisha Rahmadia Aqilah</td>
+                <td>17 Nov 2026</td>
+                <td>19:00 - 21:00</td>
+                <td>2.0 Jam</td>
+                <td>Emergency penanganan kabel putus tiang utama</td>
+                <td>Citra (BL)</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-success" style="padding:4px 8px; font-size:11px;" onclick="openModalApproveSA(this)">Approve</button>
+                    <button class="btn btn-outline" style="padding:4px 8px; font-size:11px; color:#ef4444;" onclick="rejectSA(this)">Tolak</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PANE 5: SUPER ADMIN - HISTORY VALIDASI     -->
+      <!-- ========================================== -->
+      <div id="tab-sa-history-validasi" class="view-pane">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">History Validasi Overtime Nasional</h1>
+            <p class="page-desc">Rekap seluruh lembur yang telah divalidasi dan disetujui untuk proses payroll seluruh Indonesia.</p>
+          </div>
+          <span class="role-badge-indicator role-badge-sa">Role: Super Admin (Pusat)</span>
+        </div>
+
+        <div class="card">
+          <!-- FILTER: BRANCH, NAMA TEKNISI, BULAN, TAHUN, STATUS -->
+          <div class="action-bar" style="margin-bottom: 14px; background:#f8fafc; padding:10px 14px; border-radius:8px; border:1px solid #e2e8f0; flex-wrap:wrap; gap:10px;">
+            <div class="action-bar-left" style="flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Branch:</span>
+                <select class="filter-select" id="filterBranchHistSA" onchange="filterHistoryValidasiSA()">
+                  <option value="ALL">Semua Branch</option>
+                  <option value="Rayon Timur">Rayon Timur</option>
+                  <option value="Rayon Barat">Rayon Barat</option>
+                  <option value="Rayon Selatan">Rayon Selatan</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Teknisi:</span>
+                <select class="filter-select" id="filterTeknisiHistSA" onchange="filterHistoryValidasiSA()">
+                  <option value="ALL">Semua Teknisi</option>
+                  <option value="Damar">Damar</option>
+                  <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+                  <option value="Nur Huda Riyanto">Nur Huda Riyanto</option>
+                  <option value="Aisha Rahmadia Aqilah">Aisha Rahmadia Aqilah</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Bulan:</span>
+                <select class="filter-select" id="filterBulanHistSA" onchange="filterHistoryValidasiSA()">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="11" selected>November</option>
+                  <option value="10">Oktober</option>
+                  <option value="09">September</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Tahun:</span>
+                <select class="filter-select" id="filterTahunHistSA" onchange="filterHistoryValidasiSA()">
+                  <option value="2026" selected>2026</option>
+                  <option value="2025">2025</option>
+                </select>
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:12.5px; font-weight:600; color:#334155;">Status:</span>
+                <select class="filter-select" id="filterStatusHistSA" onchange="filterHistoryValidasiSA()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="APPROVED">Approved Final</option>
+                  <option value="REJECTED">Rejected Pusat</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-outline" onclick="showToast('Export log validasi overtime...')">Download Rekap Payroll Excel</button>
+          </div>
+
+          <table class="std-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Branch</th>
+                <th>Nama</th>
+                <th>Tanggal Lembur</th>
+                <th>Durasi</th>
+                <th>Grade</th>
+                <th>Fee Lembur</th>
+                <th>Problem</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyHistoryValidasiSA">
+              <tr data-no="1" data-branch="Rayon Timur" data-teknisi="R. Billiyan Mulkan Ghifari" data-tgl="16 Nov 2026" data-start="18:30" data-end="21:30" data-durasi="3.0 Jam" data-grade="Grade B" data-fee="Rp. 100.000" data-problem="Splicing ODP-DAMAR-04" data-deskripsi="Penanganan core putus akibat tersangkut kendaraan muatan tinggi." data-action="Jointing closure ulang di tiang distribusi ODP-DAMAR-04." data-ket="No Tiket: OT-TIMUR-2026-11-042. Divalidasi Super Admin Pusat untuk Payroll." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>1</td>
+                <td>Rayon Timur</td>
+                <td>R. Billiyan Mulkan Ghifari</td>
+                <td>16 Nov 2026</td>
+                <td>3.0 Jam</td>
+                <td><span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span></td>
+                <td><strong style="color:#2563eb;">Rp. 100.000</strong></td>
+                <td>Splicing ODP-DAMAR-04</td>
+                <td><span class="status-pill approved">Approved Final</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="2" data-branch="Rayon Timur" data-teknisi="Damar" data-tgl="15 Nov 2026" data-start="18:00" data-end="21:00" data-durasi="3.0 Jam" data-grade="Grade A" data-fee="Rp. 150.000" data-problem="Emergency FO Cut tertabrak dahan" data-deskripsi="Kabel fiber optik distribusi 24 core terputus tertimpa dahan tumbang di Jl. Veteran." data-action="Splicing ulang 12 core aktif dan proteksi closure di tiang ODP-VET-04." data-ket="No Tiket: OT-TIMUR-2026-11-039. Penanganan emergency di luar jam kerja resmi." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>2</td>
+                <td>Rayon Timur</td>
+                <td>Damar</td>
+                <td>15 Nov 2026</td>
+                <td>3.0 Jam</td>
+                <td><span class="status-pill" style="background:#dcfce7; color:#166534; font-weight:700;">Grade A</span></td>
+                <td><strong style="color:#059669;">Rp. 150.000</strong></td>
+                <td>Emergency FO Cut tertabrak dahan</td>
+                <td><span class="status-pill approved">Approved Final</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="3" data-branch="Rayon Barat" data-teknisi="Nur Huda Riyanto" data-tgl="12 Nov 2026" data-start="18:00" data-end="22:00" data-durasi="4.0 Jam" data-grade="Grade C" data-fee="Rp. 75.000" data-problem="Maintenance FAT Pasar Baru" data-deskripsi="Pembersihan konektor FAT dan perapian jalur kabel dropcore semrawut." data-action="Penataan kabel dan penomoran ulang label port FAT Pasar Baru." data-ket="No Tiket: OT-BARAT-2026-11-018. Disetujui Grade C pemeliharaan rutin." data-bulan="11" data-tahun="2026" data-status="APPROVED">
+                <td>3</td>
+                <td>Rayon Barat</td>
+                <td>Nur Huda Riyanto</td>
+                <td>12 Nov 2026</td>
+                <td>4.0 Jam</td>
+                <td><span class="status-pill" style="background:#fef3c7; color:#92400e; font-weight:700;">Grade C</span></td>
+                <td><strong style="color:#d97706;">Rp. 75.000</strong></td>
+                <td>Maintenance FAT Pasar Baru</td>
+                <td><span class="status-pill approved">Approved Final</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+              <tr data-no="4" data-branch="Rayon Selatan" data-teknisi="Aisha Rahmadia Aqilah" data-tgl="08 Nov 2026" data-start="19:00" data-end="20:30" data-durasi="1.5 Jam" data-grade="-" data-fee="-" data-problem="Klaim lembur tanpa WO valid" data-deskripsi="Pengajuan lembur diajukan tanpa nomor tiket WO dan koordinat penugasan yang valid." data-action="Pengecekan log server NMS, tidak ada aktivitas dispatch darurat." data-ket="No Tiket: OT-SELATAN-2026-11-009. Ditolak oleh Pusat karena tidak ada WO valid." data-bulan="11" data-tahun="2026" data-status="REJECTED">
+                <td>4</td>
+                <td>Rayon Selatan</td>
+                <td>Aisha Rahmadia Aqilah</td>
+                <td>08 Nov 2026</td>
+                <td>1.5 Jam</td>
+                <td><span class="status-pill" style="background:#f1f5f9; color:#64748b;">-</span></td>
+                <td><span style="color:#94a3b8;">-</span></td>
+                <td>Klaim lembur tanpa WO valid</td>
+                <td><span class="status-pill rejected">Rejected Pusat</span></td>
+                <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- POPUP: MODAL DETAIL 4 CHECK-LOG FINGERPRINT -->
+  <div class="modal-overlay" id="modalCheckLog">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9.004"/></svg>
+          Riwayat Check Log Absensi
+        </h3>
+        <button class="modal-close" onclick="closeModalCheckLog()">&times;</button>
+      </div>
+
+      <div style="background: #f1f5f9; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+        <div>
+          <div style="font-weight: 600; color: #0f172a;" id="modalTeknisiNama">-</div>
+          <div style="color: #64748b; font-size: 12px;" id="modalTeknisiTanggal">-</div>
+        </div>
+        <div style="text-align: right;" id="modalQuotaContainer">
+          <span class="quota-badge" id="modalQuotaBadge">Sisa Kuota Koreksi: 2/3</span>
+        </div>
+      </div>
+
+      <!-- 4 CHECK LOG ITEMS -->
+      <div class="checklog-list" id="checklogItems">
+        <div class="checklog-card done">
+          <div class="checklog-left">
+            <div class="checklog-icon">1</div>
+            <div>
+              <div class="checklog-title">Check-in 1 (Kedatangan di Branch)</div>
+              <div class="checklog-subtitle">Mesin FP Branch Gate Utama</div>
+            </div>
+          </div>
+          <div class="checklog-time" id="valCheckin1">07:54 WIB</div>
+        </div>
+
+        <div class="checklog-card done">
+          <div class="checklog-left">
+            <div class="checklog-icon">2</div>
+            <div>
+              <div class="checklog-title">Check-in 2 (Keberangkatan Lapangan)</div>
+              <div class="checklog-subtitle">Briefing tim &amp; toolkit</div>
+            </div>
+          </div>
+          <div class="checklog-time" id="valCheckin2">08:28 WIB</div>
+        </div>
+
+        <div class="checklog-card done">
+          <div class="checklog-left">
+            <div class="checklog-icon">3</div>
+            <div>
+              <div class="checklog-title">Check-out 1 (Kepulangan ke Branch)</div>
+              <div class="checklog-subtitle">Kembali dari lapangan</div>
+            </div>
+          </div>
+          <div class="checklog-time" id="valCheckout1">16:42 WIB</div>
+        </div>
+
+        <div class="checklog-card done">
+          <div class="checklog-left">
+            <div class="checklog-icon">4</div>
+            <div>
+              <div class="checklog-title">Check-out 2 (Selesai Jam Kerja Harian)</div>
+              <div class="checklog-subtitle">Tutup shift harian &amp; serah terima alat</div>
+            </div>
+          </div>
+          <div class="checklog-time" id="valCheckout2">17:05 WIB</div>
+        </div>
+      </div>
+
+      <!-- IN-MODAL FORM KOREKSI OLEH BL (HANYA MUNCUL DI ROLE BL) -->
+      <div class="koreksi-panel" id="panelKoreksiBL">
+        <div class="notice-box">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div>
+            <strong>Otoritas Khusus Branch Leader (BL):</strong> Centang salah satu atau beberapa titik check point yang ingin dikoreksi. Maksimal 3 kali per teknisi dalam 1 bulan.
+          </div>
+        </div>
+
+        <form id="formKoreksiBL" onsubmit="submitKoreksiBL(event)">
+          <div style="font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 8px;">
+            Pilih Titik Check Point yang Akan Dikoreksi:
+          </div>
+
+          <div class="checkpoint-select-row">
+            <input type="checkbox" id="chkCI1" onchange="toggleField('timeCI1', this.checked)">
+            <label for="chkCI1" style="cursor:pointer;">Check-in 1 (Kedatangan di Branch)</label>
+            <input type="time" class="form-input" id="timeCI1" value="08:00" disabled style="padding:4px 8px; font-size:12px;">
+          </div>
+
+          <div class="checkpoint-select-row">
+            <input type="checkbox" id="chkCI2" onchange="toggleField('timeCI2', this.checked)">
+            <label for="chkCI2" style="cursor:pointer;">Check-in 2 (Keberangkatan Lapangan)</label>
+            <input type="time" class="form-input" id="timeCI2" value="08:30" disabled style="padding:4px 8px; font-size:12px;">
+          </div>
+
+          <div class="checkpoint-select-row">
+            <input type="checkbox" id="chkCO1" onchange="toggleField('timeCO1', this.checked)">
+            <label for="chkCO1" style="cursor:pointer;">Check-out 1 (Kepulangan ke Branch)</label>
+            <input type="time" class="form-input" id="timeCO1" value="16:45" disabled style="padding:4px 8px; font-size:12px;">
+          </div>
+
+          <div class="checkpoint-select-row">
+            <input type="checkbox" id="chkCO2" onchange="toggleField('timeCO2', this.checked)">
+            <label for="chkCO2" style="cursor:pointer;">Check-out 2 (Selesai Jam Kerja Harian)</label>
+            <input type="time" class="form-input" id="timeCO2" value="17:00" disabled style="padding:4px 8px; font-size:12px;">
+          </div>
+
+          <div class="form-group" style="margin-top: 10px; margin-bottom: 8px;">
+            <label class="form-label" style="font-size: 11.5px;">Alasan Koreksi (Permintaan Teknisi &amp; Catatan BL)</label>
+            <input type="text" class="form-input" required placeholder="Sensor scanner fingerprint bermasalah saat check-in..." style="font-size:12px; padding:6px 10px;">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+            <button type="button" class="btn btn-outline" style="font-size:12px; padding:6px 12px;" onclick="togglePanelKoreksi(false)">Batal</button>
+            <button type="submit" class="btn btn-amber" style="font-size:12px; padding:6px 14px;">Simpan Koreksi BL</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- FOOTER ACTION BUTTONS -->
+      <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+        <!-- TOMBOL KOREKSI HANYA MUNCUL DI ROLE BL -->
+        <button type="button" class="btn btn-amber" id="btnTriggerKoreksiBL" onclick="togglePanelKoreksi(true)">
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Koreksi Absen (BL Only)
+        </button>
+
+        <span id="readOnlyNotice" style="font-size: 12px; color: #64748b; display: none;">
+          Mode Read-only (Hanya Branch Leader yang berhak melakukan koreksi)
+        </span>
+
+        <button type="button" class="btn btn-outline" onclick="closeModalCheckLog()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP: MODAL KELOLA JADWAL KEHADIRAN (BL ONLY - SESUAI GAMBAR REFERENSI) -->
+  <div class="modal-overlay" id="modalAdminJadwal">
+    <div class="modal-card-admin">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 class="admin-title-head">Admin Jadwal Libur</h2>
+          <div class="admin-sub-head" id="adminKaryawanCount">22 karyawan tersedia</div>
+        </div>
+        <button class="btn btn-outline" style="padding:6px 16px; border-radius:8px;" onclick="closeModalAdminJadwal()">Keluar</button>
+      </div>
+
+      <!-- NAV TABS (TAMBAH JADWAL LIBUR vs TUKAR LIBUR) - TANPA LIST PERIZINAN -->
+      <div class="admin-nav-bar">
+        <button class="admin-tab-btn active" id="btnTabTambahLibur" onclick="switchAdminTab('tambah')">Tambah Jadwal Libur</button>
+        <button class="admin-tab-btn" id="btnTabTukarLibur" onclick="switchAdminTab('tukar')">Tukar Libur</button>
+      </div>
+
+      <!-- TAB 1: TAMBAH JADWAL LIBUR (SESUAI GAMBAR 1) -->
+      <div id="paneAdminTambah">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 16px;">
+          <!-- CARD KIRI: PILIH KARYAWAN -->
+          <div class="card" style="margin-bottom:0;">
+            <div style="font-weight:700; font-size:15px; color:#0f172a; margin-bottom:12px;">Pilih Karyawan</div>
+            <input type="text" id="searchKaryawanInput" class="form-input" placeholder="Cari karyawan..." oninput="filterKaryawanList(this.value)" style="margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:8px;">
+              <div>
+                <a href="javascript:void(0)" onclick="checkAllKaryawan(true)" style="color:#2563eb; text-decoration:none; font-weight:600;">Pilih Semua</a> |
+                <a href="javascript:void(0)" onclick="checkAllKaryawan(false)" style="color:#64748b; text-decoration:none;">Hapus Semua</a>
+              </div>
+              <span id="labelKaryawanTerpilih" style="color:#64748b;">0 terpilih</span>
+            </div>
+
+            <div class="karyawan-checklist-box" id="listKaryawanAdmin">
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="R. Billiyan Mulkan Ghifari" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">R. Billiyan Mulkan Ghifari</div>
+                  <div class="karyawan-role-desc">BA &bull; Lead</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Dedik Hasanah Wijaya" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Dedik Hasanah Wijaya</div>
+                  <div class="karyawan-role-desc">BA &bull; BD</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Nur Huda Riyanto" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Nur Huda Riyanto</div>
+                  <div class="karyawan-role-desc">BI &bull; BD</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Eka Mira Novita Subroto" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Eka Mira Novita Subroto</div>
+                  <div class="karyawan-role-desc">BI &bull; BD</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Damar" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Damar</div>
+                  <div class="karyawan-role-desc">BA &bull; Teknisi Lapangan</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Yusuf Ananta Tirtojojo" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Yusuf Ananta Tirtojojo</div>
+                  <div class="karyawan-role-desc">PS &bull; BD</div>
+                </div>
+              </label>
+              <label class="karyawan-check-item">
+                <input type="checkbox" class="cb-karyawan" value="Aisha Rahmadia Aqilah" onchange="updateRingkasanAdmin()">
+                <div>
+                  <div class="karyawan-name-bold">Aisha Rahmadia Aqilah</div>
+                  <div class="karyawan-role-desc">PS &bull; Teknisi</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- CARD KANAN: PILIH TANGGAL & STATUS -->
+          <div class="card" style="margin-bottom:0;">
+            <div style="font-weight:700; font-size:15px; color:#0f172a; margin-bottom:12px;">Pilih Tanggal &amp; Status</div>
+
+            <div style="display:flex; gap:8px; margin-bottom:14px;">
+              <input type="date" id="inputTanggalLibur" class="form-input" style="flex:1;">
+              <button type="button" class="btn" style="background:#5b54e0; color:#fff;" onclick="tambahTanggalAdmin()">+ Tambah</button>
+            </div>
+
+            <!-- STATUS RADIO -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin-bottom:12px;">
+              <div style="font-size:12px; color:#475569; margin-bottom:6px;">Status:</div>
+              <div style="display:flex; gap:16px; font-size:13px; font-weight:600;">
+                <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                  <input type="radio" name="adminStatusRadio" value="L" checked onchange="updateRingkasanAdmin()">
+                  <span class="legend-chip l">L</span> Libur
+                </label>
+                <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                  <input type="radio" name="adminStatusRadio" value="I" onchange="updateRingkasanAdmin()">
+                  <span class="legend-chip i">I</span> Izin
+                </label>
+                <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                  <input type="radio" name="adminStatusRadio" value="S" onchange="updateRingkasanAdmin()">
+                  <span class="legend-chip s">S</span> Sakit
+                </label>
+                <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                  <input type="radio" name="adminStatusRadio" value="C" onchange="updateRingkasanAdmin()">
+                  <span class="legend-chip c">C</span> Cuti
+                </label>
+              </div>
+            </div>
+
+            <div style="min-height:50px; border:1px dashed #cbd5e1; border-radius:8px; padding:8px 12px; margin-bottom:10px;">
+              <div id="containerTanggalDipilih" style="display:flex; flex-wrap:wrap; gap:6px;">
+                <span style="font-size:12px; color:#94a3b8; font-style:italic;" id="emptyTanggalMsg">Belum ada tanggal dipilih</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+              <span id="labelJumlahTanggal" style="color:#64748b;">0 tanggal</span>
+              <a href="javascript:void(0)" onclick="clearAllTanggalAdmin()" style="color:#ef4444; text-decoration:none; font-weight:500;">Hapus Semua Tanggal</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- KETERANGAN (OPSIONAL) -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:8px;">Keterangan (opsional)</div>
+          <input type="text" id="adminKeteranganInput" class="form-input" placeholder="Misal: Libur bersama, Cuti tahunan, Izin acara keluarga, Sakit, jadwal off, dll." oninput="updateRingkasanAdmin()">
+        </div>
+
+        <!-- RINGKASAN DATA -->
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:700; font-size:14px; color:#0f172a;">Ringkasan Data</div>
+            <span class="status-pill" style="background:#e0e7ff; color:#3730a3;" id="badgeRingkasanCount">0 data</span>
+          </div>
+          <p style="font-size:12.5px; color:#94a3b8; margin-top:6px;" id="textRingkasanAdmin">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-outline" onclick="resetFormTambahAdmin()">Reset</button>
+          <button type="button" class="btn btn-success" onclick="simpanSemuaJadwalAdmin()">Simpan Semua</button>
+        </div>
+      </div>
+
+      <!-- TAB 2: TUKAR LIBUR (SESUAI GAMBAR 2 & 3) -->
+      <div id="paneAdminTukar" style="display:none;">
+        <!-- MODE SELECTOR CARD -->
+        <div class="card" style="padding:14px 18px; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:13px; font-weight:500; color:#475569;">Pilih mode:</span>
+            <button class="admin-submode-pill active" id="btnModeKaryawanLain" onclick="switchTukarSubmode('karyawan')">Tukar dengan Karyawan Lain</button>
+            <button class="admin-submode-pill" id="btnModeJadwalLain" onclick="switchTukarSubmode('jadwal')">Tukar ke Jadwal Lain</button>
+          </div>
+        </div>
+
+        <!-- SUBMODE 1: TUKAR DENGAN KARYAWAN LAIN (GAMBAR 2) -->
+        <div id="subpaneTukarKaryawan">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-bottom:16px;">
+            <!-- KARYAWAN PERTAMA (A) -->
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-weight:700; font-size:15px; color:#0f172a; margin-bottom:12px;">Karyawan Pertama (A)</div>
+              <div class="form-group">
+                <select class="form-select" id="tukarKaryawanA" onchange="loadTanggalLiburTukar('A')">
+                  <option value="">-- Pilih Karyawan --</option>
+                  <option value="Damar">Damar (Rayon Timur)</option>
+                  <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+                  <option value="Dedik Hasanah Wijaya">Dedik Hasanah Wijaya</option>
+                  <option value="Nur Huda Riyanto">Nur Huda Riyanto</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:12px;">Tanggal Libur A:</label>
+                <select class="form-select" id="tukarTglA" onchange="updateRingkasanTukarKaryawan()">
+                  <option value="">-- Pilih Karyawan dulu --</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- KARYAWAN KEDUA (B) -->
+            <div class="card" style="margin-bottom:0;">
+              <div style="font-weight:700; font-size:15px; color:#0f172a; margin-bottom:12px;">Karyawan Kedua (B)</div>
+              <div class="form-group">
+                <select class="form-select" id="tukarKaryawanB" onchange="loadTanggalLiburTukar('B')">
+                  <option value="">-- Pilih Karyawan --</option>
+                  <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+                  <option value="Damar">Damar (Rayon Timur)</option>
+                  <option value="Dedik Hasanah Wijaya">Dedik Hasanah Wijaya</option>
+                  <option value="Nur Huda Riyanto">Nur Huda Riyanto</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:12px;">Tanggal Libur B:</label>
+                <select class="form-select" id="tukarTglB" onchange="updateRingkasanTukarKaryawan()">
+                  <option value="">-- Pilih Karyawan dulu --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- RINGKASAN TUKAR -->
+          <div class="card" style="margin-bottom:16px;">
+            <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:6px;">Ringkasan Tukar</div>
+            <p style="font-size:12.5px; color:#94a3b8;" id="textRingkasanTukarKaryawan">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="resetFormTukarKaryawan()">Reset</button>
+            <button type="button" class="btn btn-orange" onclick="submitTukarKaryawan()">Tukarkan</button>
+          </div>
+        </div>
+
+        <!-- SUBMODE 2: TUKAR KE JADWAL LAIN (GAMBAR 3) -->
+        <div id="subpaneTukarJadwal" style="display:none;">
+          <div class="card" style="margin-bottom:16px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:14px;">
+              <div>
+                <label class="form-label" style="font-weight:600;">Karyawan</label>
+                <select class="form-select" id="pindahKaryawan" onchange="loadTanggalLiburPindah()">
+                  <option value="">-- Pilih Karyawan --</option>
+                  <option value="Damar">Damar</option>
+                  <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+                  <option value="Dedik Hasanah Wijaya">Dedik Hasanah Wijaya</option>
+                  <option value="Nur Huda Riyanto">Nur Huda Riyanto</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-weight:600;">Tanggal Libur Lama</label>
+                <select class="form-select" id="pindahTglLama" onchange="updateRingkasanPindahJadwal()">
+                  <option value="">-- Pilih Karyawan dulu --</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" style="font-weight:600;">Tanggal Baru</label>
+                <input type="date" id="pindahTglBaru" class="form-input" onchange="updateRingkasanPindahJadwal()">
+              </div>
+            </div>
+          </div>
+
+          <!-- RINGKASAN PERUBAHAN -->
+          <div class="card" style="margin-bottom:16px;">
+            <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:6px;">Ringkasan Perubahan</div>
+            <p style="font-size:12.5px; color:#94a3b8;" id="textRingkasanPindahJadwal">Pilih karyawan dan tanggal untuk melihat ringkasan.</p>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="resetFormPindahJadwal()">Reset</button>
+            <button type="button" class="btn btn-orange" onclick="submitPindahJadwal()">Pindahkan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP: MODAL APPROVE & PENENTUAN GRADE OVERTIME (SUPER ADMIN) -->
+  <div class="modal-overlay" id="modalApproveSA">
+    <div class="modal-card" style="width: 540px;">
+      <div class="modal-header">
+        <h3 style="color:#0f172a;">
+          <svg width="18" height="18" fill="none" stroke="#059669" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Persetujuan &amp; Penetapan Fee Overtime
+        </h3>
+        <button class="modal-close" onclick="closeModalApproveSA()">&times;</button>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px;">
+        <div style="display:grid; grid-template-columns: 100px 1fr; gap:6px; color:#475569;">
+          <div>Teknisi</div><div>: <strong style="color:#0f172a;" id="saModalTeknisi">-</strong></div>
+          <div>Branch</div><div>: <span id="saModalBranch">-</span></div>
+          <div>Tanggal &amp; Durasi</div><div>: <span id="saModalTgl">-</span> (<strong id="saModalDurasi">-</strong>)</div>
+          <div>Aktivitas</div><div>: <span id="saModalKet">-</span></div>
+        </div>
+      </div>
+
+      <form id="formApproveGradeSA" onsubmit="submitApprovalGradeSA(event)">
+        <div class="form-group">
+          <label class="form-label" style="font-weight: 600; color:#1e293b; margin-bottom:8px;">
+            Pilih Grade / Besaran Fee Overtime:
+          </label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; background:#fff; transition:border-color 0.15s ease;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="gradeOption" value="Grade A" data-fee="Rp. 150.000" checked>
+                <div>
+                  <div style="font-weight:600; font-size:13px; color:#0f172a;">Grade A</div>
+                  <div style="font-size:11.5px; color:#64748b;">Pekerjaan High Risk / Lead Splicer / Critical OLT</div>
+                </div>
+              </div>
+              <span style="font-weight:700; color:#059669; font-size:13.5px;">Rp. 150.000</span>
+            </label>
+
+            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; background:#fff; transition:border-color 0.15s ease;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="gradeOption" value="Grade B" data-fee="Rp. 100.000">
+                <div>
+                  <div style="font-weight:600; font-size:13px; color:#0f172a;">Grade B</div>
+                  <div style="font-size:11.5px; color:#64748b;">Pekerjaan Standar Lapangan / Main Splicing</div>
+                </div>
+              </div>
+              <span style="font-weight:700; color:#2563eb; font-size:13.5px;">Rp. 100.000</span>
+            </label>
+
+            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; background:#fff; transition:border-color 0.15s ease;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="gradeOption" value="Grade C" data-fee="Rp. 75.000">
+                <div>
+                  <div style="font-weight:600; font-size:13px; color:#0f172a;">Grade C</div>
+                  <div style="font-size:11.5px; color:#64748b;">Instalasi Pasang Baru / Maintenance Ringan</div>
+                </div>
+              </div>
+              <span style="font-weight:700; color:#d97706; font-size:13.5px;">Rp. 75.000</span>
+            </label>
+
+            <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; background:#fff; transition:border-color 0.15s ease;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input type="radio" name="gradeOption" value="Grade D" data-fee="Rp. 50.000">
+                <div>
+                  <div style="font-weight:600; font-size:13px; color:#0f172a;">Grade D</div>
+                  <div style="font-size:11.5px; color:#64748b;">Helper / Asistensi Lapangan</div>
+                </div>
+              </div>
+              <span style="font-weight:700; color:#64748b; font-size:13.5px;">Rp. 50.000</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">Catatan Approval Super Admin (Opsional)</label>
+          <input type="text" class="form-input" id="saApproveNote" placeholder="Sesuai tiket penanganan darurat...">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+          <button type="button" class="btn btn-outline" onclick="closeModalApproveSA()">Batal</button>
+          <button type="submit" class="btn btn-success">Konfirmasi &amp; Approve</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- POPUP: MODAL PENGAJUAN OVERTIME (BRANCH LEADER) -->
+  <div class="modal-overlay" id="modalPengajuanOT">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="#d97706" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Form Pengajuan Overtime Teknisi
+        </h3>
+        <button class="modal-close" onclick="closeModalPengajuanOT()">&times;</button>
+      </div>
+
+      <p style="font-size:12.5px; color:#64748b; margin-bottom:16px;">
+        Ajukan kompensasi kerja lembur teknisi lapangan Branch Rayon Timur untuk diteruskan ke Super Admin Pusat.
+      </p>
+
+      <form id="formOvertimeBL" onsubmit="submitOvertimeBL(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Teknisi</label>
+          <select class="form-select" id="otBLTeknisi" required>
+            <option value="Damar">Damar (Rayon Timur)</option>
+            <option value="R. Billiyan Mulkan Ghifari">R. Billiyan Mulkan Ghifari</option>
+            <option value="Dedik Hasanah Wijaya">Dedik Hasanah Wijaya</option>
+            <option value="Yusuf Ananta Tirtojojo">Yusuf Ananta Tirtojojo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tanggal Lembur</label>
+          <input type="date" class="form-input" id="otBLTanggal" required value="2026-11-17" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start (Jam Mulai)</label>
+            <input type="time" class="form-input" id="otBLMulai" required value="18:00" onchange="hitungDurasiFormOT()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">End (Jam Selesai)</label>
+            <input type="time" class="form-input" id="otBLSelesai" required value="21:30" onchange="hitungDurasiFormOT()" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Durasi (Otomatis)</label>
+          <input type="text" class="form-input" id="otBLDurasi" readonly value="3.5 Jam" style="background:#f1f5f9; font-weight:600; color:#1e293b;" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Problem</label>
+          <input type="text" class="form-input" id="otBLProblem" required placeholder="Contoh: Emergency FO Cut tertabrak dahan" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Deskripsi Problem</label>
+          <textarea class="form-textarea" id="otBLDeskripsi" rows="2" required placeholder="Jelaskan detail kendala/kerusakan di lapangan..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <textarea class="form-textarea" id="otBLAction" rows="2" required placeholder="Langkah tindakan perbaikan atau penanganan yang dilakukan..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Keterangan Lainnya</label>
+          <input type="text" class="form-input" id="otBLKetLain" placeholder="No WO, lokasi ODP, atau catatan tambahan..." />
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+          <button type="button" class="btn btn-outline" onclick="closeModalPengajuanOT()">Batal</button>
+          <button type="submit" class="btn btn-amber">Submit ke Super Admin</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- POPUP: MODAL DETAIL RIWAYAT OVERTIME (SEMUA MENU) -->
+  <div class="modal-overlay" id="modalDetailOT">
+    <div class="modal-card" style="max-width: 560px;">
+      <div class="modal-header">
+        <h3>
+          <svg width="18" height="18" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Detail Informasi Lembur
+        </h3>
+        <button class="modal-close" onclick="closeModalDetailOT()">&times;</button>
+      </div>
+
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px; margin-bottom:14px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px 16px; font-size:12.5px;">
+          <div id="rowDetailBranch">
+            <span style="color:#64748b;">Branch:</span>
+            <div style="font-weight:700; color:#0f172a;" id="detBranch">-</div>
+          </div>
+          <div id="rowDetailNama">
+            <span style="color:#64748b;">Nama Teknisi:</span>
+            <div style="font-weight:700; color:#0f172a;" id="detNama">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">Tanggal Lembur:</span>
+            <div style="font-weight:600; color:#0f172a;" id="detTgl">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">Durasi:</span>
+            <div style="font-weight:700; color:#2563eb;" id="detDurasi">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">Start (Jam Mulai):</span>
+            <div style="font-weight:600; color:#0f172a;" id="detStart">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">End (Jam Selesai):</span>
+            <div style="font-weight:600; color:#0f172a;" id="detEnd">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">Grade:</span>
+            <div id="detGrade">-</div>
+          </div>
+          <div>
+            <span style="color:#64748b;">Fee Lembur:</span>
+            <div style="font-weight:700; color:#059669;" id="detFee">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
+        <div>
+          <span style="color:#64748b; font-weight:600;">Problem:</span>
+          <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; margin-top:3px; font-weight:600; color:#0f172a;" id="detProblem">-</div>
+        </div>
+        <div>
+          <span style="color:#64748b; font-weight:600;">Deskripsi Problem:</span>
+          <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; margin-top:3px; color:#334155; line-height:1.4;" id="detDeskripsi">-</div>
+        </div>
+        <div>
+          <span style="color:#64748b; font-weight:600;">Action:</span>
+          <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; margin-top:3px; color:#334155; line-height:1.4;" id="detAction">-</div>
+        </div>
+        <div>
+          <span style="color:#64748b; font-weight:600;">Keterangan Lainnya:</span>
+          <div style="background:#f1f5f9; padding:8px 12px; border-radius:6px; margin-top:3px; color:#475569;" id="detKet">-</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+        <button type="button" class="btn btn-outline" onclick="closeModalDetailOT()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toastBox">
+    <svg width="18" height="18" fill="none" stroke="#22c55e" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMsg">Sukses</span>
+  </div>
+
+  <script>
+    let currentRole = 'bl'; // Default: Branch Leader
+    let activeTeknisi = '';
+
+    const teknisiQuota = {
+      'R. Billiyan Mulkan Ghifari': 0,
+      'Damar (Akun Teknisi Anda)': 1,
+      'Nur Huda Riyanto': 3,
+      'Aisha Rahmadia Aqilah': 0
+    };
+
+    // SWITCH ROLE FUNCTION
+    function switchRole(role) {
+      currentRole = role;
+
+      const topName = document.getElementById('topbarUserName');
+      const headerBadge = document.getElementById('roleHeaderBadge');
+      const jadwalDesc = document.getElementById('jadwalSubDesc');
+      const btnExport = document.getElementById('btnExportExcel');
+      const btnAjukanIzin = document.getElementById('btnAjukanIzinBL');
+      const selectBranchSA = document.getElementById('select-branch-sa');
+
+      // Hide all role specific sidebar menus
+      document.querySelectorAll('.role-item').forEach(el => el.style.display = 'none');
+
+      if (role === 'teknisi') {
+        topName.innerText = 'Teknisi - Damar';
+        headerBadge.className = 'role-badge-indicator role-badge-teknisi';
+        headerBadge.innerText = 'Role: Teknisi Lapangan';
+        jadwalDesc.innerHTML = 'Matriks jadwal dan status kehadiran Anda. <em>(Mode Read-only: hanya menampilkan tabel jadwal)</em>.';
+
+        // Permissions
+        btnExport.style.display = 'none';
+        btnAjukanIzin.style.display = 'none';
+        selectBranchSA.style.display = 'none';
+
+        // Show sidebar menu
+        document.querySelectorAll('.role-teknisi-only').forEach(el => el.style.display = 'flex');
+
+        // Filter tabel hanya tampil baris Damar
+        filterTeknisiHanyaDamar(true);
+
+      } else if (role === 'bl') {
+        topName.innerText = 'BL - Haryo Danu (Rayon Timur)';
+        headerBadge.className = 'role-badge-indicator role-badge-bl';
+        headerBadge.innerText = 'Role: Branch Leader (BL)';
+        jadwalDesc.innerHTML = 'Monitoring presensi teknisi Rayon Timur. Anda dapat mengajukan izin/cuti teknisi dan melakukan koreksi absensi.';
+
+        // Permissions
+        btnExport.style.display = 'none';
+        btnAjukanIzin.style.display = 'inline-flex';
+        selectBranchSA.style.display = 'none';
+
+        // Show sidebar menu
+        document.querySelectorAll('.role-bl-only').forEach(el => el.style.display = 'flex');
+
+        filterTeknisiHanyaDamar(false);
+
+      } else if (role === 'sa') {
+        topName.innerText = 'Super Admin - Pusat';
+        headerBadge.className = 'role-badge-indicator role-badge-sa';
+        headerBadge.innerText = 'Role: Super Admin (Nasional)';
+        jadwalDesc.innerHTML = 'Monitoring kehadiran seluruh cabang nasional. Anda dapat melihat tabel dan melakukan <strong>Export Excel</strong>.';
+
+        // Permissions
+        btnExport.style.display = 'inline-flex';
+        btnAjukanIzin.style.display = 'none';
+        selectBranchSA.style.display = 'inline-block';
+
+        // Show sidebar menu
+        document.querySelectorAll('.role-sa-only').forEach(el => el.style.display = 'block');
+
+        filterTeknisiHanyaDamar(false);
+      }
+
+      // Default switch back to Jadwal Kehadiran tab
+      setActiveTab('tab-jadwal-kehadiran');
+    }
+
+    // Filter baris khusus teknisi
+    function filterTeknisiHanyaDamar(isTeknisi) {
+      const rows = document.querySelectorAll('#matrixTbody tr');
+      rows.forEach(r => {
+        const name = r.querySelector('.cell-name').innerText;
+        if (isTeknisi) {
+          r.style.display = name.includes('Damar') ? '' : 'none';
+        } else {
+          r.style.display = '';
+        }
+      });
+    }
+
+    // Filter Branch (Khusus Super Admin)
+    function filterBranch(branch) {
+      const rows = document.querySelectorAll('#matrixTbody tr');
+      rows.forEach(r => {
+        const rowBranch = r.getAttribute('data-branch');
+        if (branch === 'ALL' || rowBranch === branch) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+
+    // Filter Divisi
+    function filterDivisi(divisi) {
+      const rows = document.querySelectorAll('#matrixTbody tr');
+      rows.forEach(r => {
+        const rowDiv = r.getAttribute('data-divisi');
+        if (divisi === 'ALL' || rowDiv === divisi) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+
+    // TAB SWITCHING
+    function setActiveTab(targetTabId) {
+      document.querySelectorAll('.sidebar-item').forEach(n => {
+        if (n.getAttribute('data-tab') === targetTabId) {
+          n.classList.add('active');
+        } else {
+          n.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.view-pane').forEach(v => v.classList.remove('active'));
+      const pane = document.getElementById(targetTabId);
+      if (pane) pane.classList.add('active');
+    }
+
+    document.querySelectorAll('.sidebar-item[data-tab]').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.getAttribute('data-tab');
+        if (target) setActiveTab(target);
+      });
+    });
+
+    // MODAL CHECK LOG CONTROL
+    function viewCheckLog(nama, tanggal, status) {
+      activeTeknisi = nama;
+      document.getElementById('modalTeknisiNama').innerText = nama;
+      document.getElementById('modalTeknisiTanggal').innerText = `Tanggal: ${tanggal} • Status Matrix: ${status === 'H' ? 'Hadir (H)' : status === 'L' ? 'Libur Shift (L)' : status}`;
+
+      togglePanelKoreksi(false);
+
+      const btnTriggerBL = document.getElementById('btnTriggerKoreksiBL');
+      const readOnlyNotice = document.getElementById('readOnlyNotice');
+      const quotaContainer = document.getElementById('modalQuotaContainer');
+
+      // PERMISSION CEK: HANYA BRANCH LEADER YANG BISA KOREKSI
+      if (currentRole === 'bl') {
+        btnTriggerBL.style.display = 'inline-flex';
+        readOnlyNotice.style.display = 'none';
+        quotaContainer.style.display = 'block';
+        updateModalQuotaDisplay(nama);
+      } else {
+        btnTriggerBL.style.display = 'none';
+        readOnlyNotice.style.display = 'inline-block';
+        quotaContainer.style.display = 'none';
+      }
+
+      const items = document.getElementById('checklogItems');
+      const ci1 = document.getElementById('valCheckin1');
+      const ci2 = document.getElementById('valCheckin2');
+      const co1 = document.getElementById('valCheckout1');
+      const co2 = document.getElementById('valCheckout2');
+
+      if (status === 'L') {
+        ci1.innerText = '--:-- (Libur)';
+        ci2.innerText = '--:-- (Libur)';
+        co1.innerText = '--:-- (Libur)';
+        co2.innerText = '--:-- (Libur)';
+        items.querySelectorAll('.checklog-card').forEach(c => {
+          c.classList.remove('done');
+          c.classList.add('empty');
+        });
+      } else {
+        ci1.innerText = '07:54 WIB';
+        ci2.innerText = '08:28 WIB';
+        co1.innerText = '16:42 WIB';
+        co2.innerText = '17:05 WIB';
+        items.querySelectorAll('.checklog-card').forEach(c => {
+          c.classList.add('done');
+          c.classList.remove('empty');
+        });
+      }
+
+      document.getElementById('modalCheckLog').classList.add('show');
+    }
+
+    function closeModalCheckLog() {
+      document.getElementById('modalCheckLog').classList.remove('show');
+    }
+
+    function updateModalQuotaDisplay(nama) {
+      const used = teknisiQuota[nama] ?? 0;
+      const sisa = Math.max(0, 3 - used);
+      const badge = document.getElementById('modalQuotaBadge');
+      const btn = document.getElementById('btnTriggerKoreksiBL');
+
+      if (sisa <= 0) {
+        badge.innerText = `Kuota Koreksi: HABIS (3/3)`;
+        badge.style.background = '#fee2e2';
+        badge.style.color = '#991b1b';
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      } else {
+        badge.innerText = `Sisa Kuota Koreksi: ${sisa} dari 3x`;
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#b45309';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      }
+    }
+
+    function togglePanelKoreksi(show) {
+      const panel = document.getElementById('panelKoreksiBL');
+      const btn = document.getElementById('btnTriggerKoreksiBL');
+      if (show) {
+        panel.classList.add('show');
+        btn.style.display = 'none';
+      } else {
+        panel.classList.remove('show');
+        if (currentRole === 'bl') btn.style.display = 'inline-flex';
+        document.getElementById('formKoreksiBL').reset();
+        ['timeCI1', 'timeCI2', 'timeCO1', 'timeCO2'].forEach(id => {
+          document.getElementById(id).disabled = true;
+        });
+      }
+    }
+
+    function toggleField(inputId, isChecked) {
+      const input = document.getElementById(inputId);
+      input.disabled = !isChecked;
+      if (isChecked) input.focus();
+    }
+
+    function submitKoreksiBL(e) {
+      e.preventDefault();
+      const chk1 = document.getElementById('chkCI1').checked;
+      const chk2 = document.getElementById('chkCI2').checked;
+      const chk3 = document.getElementById('chkCO1').checked;
+      const chk4 = document.getElementById('chkCO2').checked;
+
+      if (!chk1 && !chk2 && !chk3 && !chk4) {
+        alert('Pilih minimal satu titik check point yang ingin dikoreksi!');
+        return;
+      }
+
+      let used = teknisiQuota[activeTeknisi] ?? 0;
+      if (used >= 3) {
+        alert('Batas kuota koreksi 3x per teknisi sudah habis!');
+        return;
+      }
+
+      if (chk1) document.getElementById('valCheckin1').innerText = `${document.getElementById('timeCI1').value} WIB (Koreksi BL)`;
+      if (chk2) document.getElementById('valCheckin2').innerText = `${document.getElementById('timeCI2').value} WIB (Koreksi BL)`;
+      if (chk3) document.getElementById('valCheckout1').innerText = `${document.getElementById('timeCO1').value} WIB (Koreksi BL)`;
+      if (chk4) document.getElementById('valCheckout2').innerText = `${document.getElementById('timeCO2').value} WIB (Koreksi BL)`;
+
+      teknisiQuota[activeTeknisi] = used + 1;
+      updateModalQuotaDisplay(activeTeknisi);
+      togglePanelKoreksi(false);
+
+      showToast(`Koreksi absensi ${activeTeknisi} berhasil disimpan oleh BL. (Ke-${teknisiQuota[activeTeknisi]}/3)`);
+    }
+
+    // MODAL KELOLA JADWAL ADMIN (BL ONLY)
+    let selectedTanggalList = [];
+
+    function openModalAdminJadwal() {
+      document.getElementById('modalAdminJadwal').classList.add('show');
+    }
+    function closeModalAdminJadwal() {
+      document.getElementById('modalAdminJadwal').classList.remove('show');
+    }
+
+    function switchAdminTab(tab) {
+      const btnTambah = document.getElementById('btnTabTambahLibur');
+      const btnTukar = document.getElementById('btnTabTukarLibur');
+      const paneTambah = document.getElementById('paneAdminTambah');
+      const paneTukar = document.getElementById('paneAdminTukar');
+
+      if (tab === 'tambah') {
+        btnTambah.classList.add('active');
+        btnTukar.classList.remove('active');
+        paneTambah.style.display = 'block';
+        paneTukar.style.display = 'none';
+      } else {
+        btnTukar.classList.add('active');
+        btnTambah.classList.remove('active');
+        paneTambah.style.display = 'none';
+        paneTukar.style.display = 'block';
+      }
+    }
+
+    // TAB 1: LOGIKA TAMBAH JADWAL LIBUR
+    function filterKaryawanList(kw) {
+      const items = document.querySelectorAll('.karyawan-check-item');
+      items.forEach(it => {
+        const text = it.innerText.toLowerCase();
+        it.style.display = text.includes(kw.toLowerCase()) ? 'flex' : 'none';
+      });
+    }
+
+    function checkAllKaryawan(check) {
+      document.querySelectorAll('.cb-karyawan').forEach(cb => {
+        if (cb.closest('.karyawan-check-item').style.display !== 'none') {
+          cb.checked = check;
+        }
+      });
+      updateRingkasanAdmin();
+    }
+
+    function tambahTanggalAdmin() {
+      const input = document.getElementById('inputTanggalLibur');
+      const val = input.value;
+      if (!val) {
+        alert('Pilih tanggal terlebih dahulu!');
+        return;
+      }
+      if (selectedTanggalList.includes(val)) {
+        alert('Tanggal tersebut sudah ditambahkan!');
+        return;
+      }
+      selectedTanggalList.push(val);
+      renderTanggalTags();
+      updateRingkasanAdmin();
+    }
+
+    function removeTanggalAdmin(tgl) {
+      selectedTanggalList = selectedTanggalList.filter(t => t !== tgl);
+      renderTanggalTags();
+      updateRingkasanAdmin();
+    }
+
+    function clearAllTanggalAdmin() {
+      selectedTanggalList = [];
+      renderTanggalTags();
+      updateRingkasanAdmin();
+    }
+
+    function renderTanggalTags() {
+      const container = document.getElementById('containerTanggalDipilih');
+      const countLabel = document.getElementById('labelJumlahTanggal');
+      container.innerHTML = '';
+
+      if (selectedTanggalList.length === 0) {
+        container.innerHTML = '<span style="font-size:12px; color:#94a3b8; font-style:italic;" id="emptyTanggalMsg">Belum ada tanggal dipilih</span>';
+        countLabel.innerText = '0 tanggal';
+        return;
+      }
+
+      countLabel.innerText = `${selectedTanggalList.length} tanggal`;
+      selectedTanggalList.forEach(tgl => {
+        const tag = document.createElement('span');
+        tag.className = 'tag-tanggal-item';
+        tag.innerHTML = `${tgl} <span class="tag-tanggal-remove" onclick="removeTanggalAdmin('${tgl}')">&times;</span>`;
+        container.appendChild(tag);
+      });
+    }
+
+    function updateRingkasanAdmin() {
+      const selectedKaryawan = Array.from(document.querySelectorAll('.cb-karyawan:checked')).map(cb => cb.value);
+      document.getElementById('labelKaryawanTerpilih').innerText = `${selectedKaryawan.length} terpilih`;
+
+      const statusRadio = document.querySelector('input[name="adminStatusRadio"]:checked').value;
+      const totalData = selectedKaryawan.length * selectedTanggalList.length;
+      document.getElementById('badgeRingkasanCount').innerText = `${totalData} data`;
+
+      const textRingkasan = document.getElementById('textRingkasanAdmin');
+      if (totalData === 0) {
+        textRingkasan.innerText = 'Pilih karyawan dan tanggal untuk melihat ringkasan.';
+      } else {
+        const namaSampel = selectedKaryawan.slice(0, 2).join(', ') + (selectedKaryawan.length > 2 ? ` (+${selectedKaryawan.length - 2} lainnya)` : '');
+        const statusNama = statusRadio === 'L' ? 'Libur (L)' : statusRadio === 'I' ? 'Izin (I)' : statusRadio === 'S' ? 'Sakit (S)' : 'Cuti (C)';
+        textRingkasan.innerHTML = `Menetapkan status <strong>${statusNama}</strong> untuk <strong>${selectedKaryawan.length} karyawan</strong> (${namaSampel}) pada <strong>${selectedTanggalList.length} tanggal</strong> terpilih.`;
+      }
+    }
+
+    function resetFormTambahAdmin() {
+      checkAllKaryawan(false);
+      clearAllTanggalAdmin();
+      document.getElementById('adminKeteranganInput').value = '';
+      updateRingkasanAdmin();
+    }
+
+    function simpanSemuaJadwalAdmin() {
+      const selectedKaryawan = Array.from(document.querySelectorAll('.cb-karyawan:checked')).map(cb => cb.value);
+      if (selectedKaryawan.length === 0) {
+        alert('Pilih minimal satu karyawan!');
+        return;
+      }
+      if (selectedTanggalList.length === 0) {
+        alert('Tambahkan minimal satu tanggal!');
+        return;
+      }
+
+      const statusRadio = document.querySelector('input[name="adminStatusRadio"]:checked').value;
+      closeModalAdminJadwal();
+      showToast(`Berhasil menyimpan ${selectedKaryawan.length * selectedTanggalList.length} entri jadwal kehadiran (${statusRadio}).`);
+      resetFormTambahAdmin();
+    }
+
+    // TAB 2: LOGIKA TUKAR LIBUR
+    function switchTukarSubmode(mode) {
+      const btnKaryawan = document.getElementById('btnModeKaryawanLain');
+      const btnJadwal = document.getElementById('btnModeJadwalLain');
+      const paneKaryawan = document.getElementById('subpaneTukarKaryawan');
+      const paneJadwal = document.getElementById('subpaneTukarJadwal');
+
+      if (mode === 'karyawan') {
+        btnKaryawan.classList.add('active');
+        btnJadwal.classList.remove('active');
+        paneKaryawan.style.display = 'block';
+        paneJadwal.style.display = 'none';
+      } else {
+        btnJadwal.classList.add('active');
+        btnKaryawan.classList.remove('active');
+        paneKaryawan.style.display = 'none';
+        paneJadwal.style.display = 'block';
+      }
+    }
+
+    // Dummy jadwal libur per karyawan
+    const jadwalLiburDb = {
+      'Damar': ['07 Juni 2026', '15 Juni 2026', '21 Juni 2026', '28 Juni 2026'],
+      'R. Billiyan Mulkan Ghifari': ['07 Juni 2026', '15 Juni 2026', '21 Juni 2026', '28 Juni 2026'],
+      'Dedik Hasanah Wijaya': ['08 Juni 2026', '16 Juni 2026', '22 Juni 2026', '29 Juni 2026'],
+      'Nur Huda Riyanto': ['08 Juni 2026', '15 Juni 2026', '21 Juni 2026', '30 Juni 2026']
+    };
+
+    function loadTanggalLiburTukar(target) {
+      const kNama = document.getElementById(`tukarKaryawan${target}`).value;
+      const selectTgl = document.getElementById(`tukarTgl${target}`);
+      selectTgl.innerHTML = '';
+
+      if (!kNama) {
+        selectTgl.innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+        updateRingkasanTukarKaryawan();
+        return;
+      }
+
+      const list = jadwalLiburDb[kNama] || ['07 Juni 2026', '14 Juni 2026', '21 Juni 2026'];
+      selectTgl.innerHTML = '<option value="">-- Pilih Tanggal Libur --</option>';
+      list.forEach(tgl => {
+        const opt = document.createElement('option');
+        opt.value = tgl;
+        opt.innerText = tgl;
+        selectTgl.appendChild(opt);
+      });
+      updateRingkasanTukarKaryawan();
+    }
+
+    function updateRingkasanTukarKaryawan() {
+      const kA = document.getElementById('tukarKaryawanA').value;
+      const tglA = document.getElementById('tukarTglA').value;
+      const kB = document.getElementById('tukarKaryawanB').value;
+      const tglB = document.getElementById('tukarTglB').value;
+      const ringkasan = document.getElementById('textRingkasanTukarKaryawan');
+
+      if (!kA || !tglA || !kB || !tglB) {
+        ringkasan.innerText = 'Pilih karyawan dan tanggal untuk melihat ringkasan.';
+      } else if (kA === kB) {
+        ringkasan.innerHTML = '<span style="color:#ef4444;">Karyawan A dan B tidak boleh sama! Gunakan mode "Tukar ke Jadwal Lain".</span>';
+      } else {
+        ringkasan.innerHTML = `Libur <strong>${kA}</strong> pada <strong>${tglA}</strong> akan ditukarkan dengan libur <strong>${kB}</strong> pada <strong>${tglB}</strong>.`;
+      }
+    }
+
+    function resetFormTukarKaryawan() {
+      document.getElementById('tukarKaryawanA').value = '';
+      document.getElementById('tukarKaryawanB').value = '';
+      loadTanggalLiburTukar('A');
+      loadTanggalLiburTukar('B');
+      updateRingkasanTukarKaryawan();
+    }
+
+    function submitTukarKaryawan() {
+      const kA = document.getElementById('tukarKaryawanA').value;
+      const tglA = document.getElementById('tukarTglA').value;
+      const kB = document.getElementById('tukarKaryawanB').value;
+      const tglB = document.getElementById('tukarTglB').value;
+
+      if (!kA || !tglA || !kB || !tglB) {
+        alert('Lengkapi pemilihan Karyawan A, Karyawan B, dan tanggal libur masing-masing!');
+        return;
+      }
+      if (kA === kB) {
+        alert('Karyawan A dan B tidak boleh sama!');
+        return;
+      }
+
+      closeModalAdminJadwal();
+      showToast(`Jadwal libur antara ${kA} (${tglA}) dan ${kB} (${tglB}) berhasil ditukarkan.`);
+    }
+
+    function loadTanggalLiburPindah() {
+      const kNama = document.getElementById('pindahKaryawan').value;
+      const selectTgl = document.getElementById('pindahTglLama');
+      selectTgl.innerHTML = '';
+
+      if (!kNama) {
+        selectTgl.innerHTML = '<option value="">-- Pilih Karyawan dulu --</option>';
+        updateRingkasanPindahJadwal();
+        return;
+      }
+
+      const list = jadwalLiburDb[kNama] || ['07 Juni 2026', '14 Juni 2026', '21 Juni 2026'];
+      selectTgl.innerHTML = '<option value="">-- Pilih Tanggal Libur Lama --</option>';
+      list.forEach(tgl => {
+        const opt = document.createElement('option');
+        opt.value = tgl;
+        opt.innerText = tgl;
+        selectTgl.appendChild(opt);
+      });
+      updateRingkasanPindahJadwal();
+    }
+
+    function updateRingkasanPindahJadwal() {
+      const kNama = document.getElementById('pindahKaryawan').value;
+      const tglLama = document.getElementById('pindahTglLama').value;
+      const tglBaru = document.getElementById('pindahTglBaru').value;
+      const ringkasan = document.getElementById('textRingkasanPindahJadwal');
+
+      if (!kNama || !tglLama || !tglBaru) {
+        ringkasan.innerText = 'Pilih karyawan dan tanggal untuk melihat ringkasan.';
+      } else {
+        ringkasan.innerHTML = `Jadwal libur <strong>${kNama}</strong> dari tanggal <strong>${tglLama}</strong> dipindahkan ke tanggal <strong>${tglBaru}</strong>.`;
+      }
+    }
+
+    function resetFormPindahJadwal() {
+      document.getElementById('pindahKaryawan').value = '';
+      document.getElementById('pindahTglBaru').value = '';
+      loadTanggalLiburPindah();
+      updateRingkasanPindahJadwal();
+    }
+
+    function submitPindahJadwal() {
+      const kNama = document.getElementById('pindahKaryawan').value;
+      const tglLama = document.getElementById('pindahTglLama').value;
+      const tglBaru = document.getElementById('pindahTglBaru').value;
+
+      if (!kNama || !tglLama || !tglBaru) {
+        alert('Pilih karyawan, tanggal libur lama, dan tanggal baru!');
+        return;
+      }
+
+      closeModalAdminJadwal();
+      showToast(`Jadwal libur ${kNama} berhasil dipindahkan dari ${tglLama} ke ${tglBaru}.`);
+    }
+
+    // HITUNG OTOMATIS DURASI PADA FORM PENGAJUAN OT (START - END)
+    function hitungDurasiFormOT() {
+      const jamMulai = document.getElementById('otBLMulai').value;
+      const jamSelesai = document.getElementById('otBLSelesai').value;
+      const inputDurasi = document.getElementById('otBLDurasi');
+
+      if (!jamMulai || !jamSelesai) {
+        inputDurasi.value = '0.0 Jam';
+        return;
+      }
+
+      const [hM, mM] = jamMulai.split(':').map(Number);
+      const [hS, mS] = jamSelesai.split(':').map(Number);
+
+      let menitMulai = hM * 60 + mM;
+      let menitSelesai = hS * 60 + mS;
+
+      // Handle lintas tengah malam jika selesai < mulai
+      if (menitSelesai < menitMulai) {
+        menitSelesai += 24 * 60;
+      }
+
+      const selisihMenit = menitSelesai - menitMulai;
+      const jamDesimal = (selisihMenit / 60).toFixed(1);
+      inputDurasi.value = `${jamDesimal} Jam`;
+    }
+
+    // POPUP MODAL DETAIL OVERTIME (GENERIC UNTUK SEMUA MENU & ROLE)
+    function bukaModalDetailOT(btn) {
+      const row = btn.closest('tr');
+      if (!row) return;
+
+      const branch = row.getAttribute('data-branch') || '-';
+      const teknisi = row.getAttribute('data-teknisi') || '-';
+      const tgl = row.getAttribute('data-tgl') || '-';
+      const start = row.getAttribute('data-start') || '-';
+      const end = row.getAttribute('data-end') || '-';
+      const durasi = row.getAttribute('data-durasi') || '-';
+      const grade = row.getAttribute('data-grade') || '-';
+      const fee = row.getAttribute('data-fee') || '-';
+      const problem = row.getAttribute('data-problem') || '-';
+      const deskripsi = row.getAttribute('data-deskripsi') || '-';
+      const action = row.getAttribute('data-action') || '-';
+      const ket = row.getAttribute('data-ket') || '-';
+
+      // Set elemen teks modal
+      document.getElementById('detBranch').innerText = branch;
+      document.getElementById('detNama').innerText = teknisi;
+      document.getElementById('detTgl').innerText = tgl;
+      document.getElementById('detDurasi').innerText = durasi;
+      document.getElementById('detStart').innerText = start;
+      document.getElementById('detEnd').innerText = end;
+      document.getElementById('detFee').innerText = fee;
+      document.getElementById('detProblem').innerText = problem;
+      document.getElementById('detDeskripsi').innerText = deskripsi;
+      document.getElementById('detAction').innerText = action;
+      document.getElementById('detKet').innerText = ket;
+
+      // Grade badge styling
+      const gradeEl = document.getElementById('detGrade');
+      if (grade.includes('Grade A')) {
+        gradeEl.innerHTML = '<span class="status-pill" style="background:#dcfce7; color:#166534; font-weight:700;">Grade A</span>';
+      } else if (grade.includes('Grade B')) {
+        gradeEl.innerHTML = '<span class="status-pill" style="background:#e0e7ff; color:#3730a3; font-weight:700;">Grade B</span>';
+      } else if (grade.includes('Grade C')) {
+        gradeEl.innerHTML = '<span class="status-pill" style="background:#fef3c7; color:#92400e; font-weight:700;">Grade C</span>';
+      } else if (grade.includes('Grade D')) {
+        gradeEl.innerHTML = '<span class="status-pill" style="background:#f1f5f9; color:#475569; font-weight:700;">Grade D</span>';
+      } else {
+        gradeEl.innerHTML = `<span style="font-weight:600; color:#64748b;">${grade}</span>`;
+      }
+
+      // Hide branch row jika role teknisi sedang melihat overtime pribadinya
+      const rowBranchEl = document.getElementById('rowDetailBranch');
+      if (rowBranchEl) {
+        rowBranchEl.style.display = (branch === '-' || currentRole === 'teknisi') ? 'none' : 'block';
+      }
+
+      document.getElementById('modalDetailOT').classList.add('show');
+    }
+
+    function closeModalDetailOT() {
+      document.getElementById('modalDetailOT').classList.remove('show');
+    }
+
+    // POPUP MODAL PENGAJUAN OVERTIME (BL)
+    function openModalPengajuanOT() {
+      document.getElementById('modalPengajuanOT').classList.add('show');
+    }
+
+    function closeModalPengajuanOT() {
+      document.getElementById('modalPengajuanOT').classList.remove('show');
+    }
+
+    // FILTER HISTORY OVERTIME PRIBADI TEKNISI (BULAN, TAHUN, STATUS)
+    function filterRiwayatOTPribadi() {
+      const fBulan = document.getElementById('filterOTPribadiBulan').value;
+      const fTahun = document.getElementById('filterOTPribadiTahun').value;
+      const fStatus = document.getElementById('filterOTPribadiStatus').value;
+      const rows = document.querySelectorAll('#tbodyOTPribadi tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const rowBulan = row.getAttribute('data-bulan') || '';
+        const rowTahun = row.getAttribute('data-tahun') || '';
+        const rowStatus = row.getAttribute('data-status') || '';
+
+        const matchBulan = (fBulan === 'ALL') || (rowBulan === fBulan);
+        const matchTahun = (fTahun === 'ALL') || (rowTahun === fTahun);
+        const matchStatus = (fStatus === 'ALL') || (rowStatus === fStatus);
+
+        if (matchBulan && matchTahun && matchStatus) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      const infoLabel = document.getElementById('infoFilterOTPribadi');
+      if (infoLabel) {
+        infoLabel.innerText = `Menampilkan ${visibleCount} catatan lembur`;
+      }
+    }
+
+    // FILTER RIWAYAT OVERTIME BL (NAMA TEKNISI, BULAN, TAHUN, STATUS)
+    function filterRiwayatOTBL() {
+      const fTeknisi = document.getElementById('filterOTTeknisi').value;
+      const fBulan = document.getElementById('filterOTBulan').value;
+      const fTahun = document.getElementById('filterOTTahun').value;
+      const fStatus = document.getElementById('filterOTBLStatus').value;
+      const rows = document.querySelectorAll('#otTableBodyBL tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const rowTeknisi = row.getAttribute('data-teknisi') || '';
+        const rowBulan = row.getAttribute('data-bulan') || '';
+        const rowTahun = row.getAttribute('data-tahun') || '';
+        const rowStatus = row.getAttribute('data-status') || '';
+
+        const matchTeknisi = (fTeknisi === 'ALL') || rowTeknisi.includes(fTeknisi);
+        const matchBulan = (fBulan === 'ALL') || (rowBulan === fBulan);
+        const matchTahun = (fTahun === 'ALL') || (rowTahun === fTahun);
+        const matchStatus = (fStatus === 'ALL') || (rowStatus === fStatus);
+
+        if (matchTeknisi && matchBulan && matchTahun && matchStatus) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      const countLabel = document.getElementById('countFilterOTBL');
+      if (countLabel) {
+        countLabel.innerText = `Menampilkan ${visibleCount} data lembur cabang`;
+      }
+    }
+
+    // FILTER HISTORY VALIDASI SUPER ADMIN (BRANCH, TEKNISI, BULAN, TAHUN, STATUS)
+    function filterHistoryValidasiSA() {
+      const fBranch = document.getElementById('filterBranchHistSA').value;
+      const fTeknisi = document.getElementById('filterTeknisiHistSA').value;
+      const fBulan = document.getElementById('filterBulanHistSA').value;
+      const fTahun = document.getElementById('filterTahunHistSA').value;
+      const fStatus = document.getElementById('filterStatusHistSA').value;
+
+      const rows = document.querySelectorAll('#tbodyHistoryValidasiSA tr');
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const rowBranch = row.getAttribute('data-branch') || '';
+        const rowTeknisi = row.getAttribute('data-teknisi') || '';
+        const rowBulan = row.getAttribute('data-bulan') || '';
+        const rowTahun = row.getAttribute('data-tahun') || '';
+        const rowStatus = row.getAttribute('data-status') || '';
+
+        const matchBranch = (fBranch === 'ALL') || (rowBranch === fBranch);
+        const matchTeknisi = (fTeknisi === 'ALL') || rowTeknisi.includes(fTeknisi);
+        const matchBulan = (fBulan === 'ALL') || (rowBulan === fBulan);
+        const matchTahun = (fTahun === 'ALL') || (rowTahun === fTahun);
+        const matchStatus = (fStatus === 'ALL') || (rowStatus === fStatus);
+
+        if (matchBranch && matchTeknisi && matchBulan && matchTahun && matchStatus) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      showToast(`Filter History Validasi: ${visibleCount} data ditemukan`);
+    }
+
+    // FORM SUBMIT OVERTIME BL (MENGAJUKAN KE SUPER ADMIN)
+    function submitOvertimeBL(e) {
+      e.preventDefault();
+      const nama = document.getElementById('otBLTeknisi').value;
+      const tgl = document.getElementById('otBLTanggal').value;
+      const jamMulai = document.getElementById('otBLMulai').value;
+      const jamSelesai = document.getElementById('otBLSelesai').value;
+      const durasi = document.getElementById('otBLDurasi').value || '3.5 Jam';
+      const problem = document.getElementById('otBLProblem').value;
+      const deskripsi = document.getElementById('otBLDeskripsi').value;
+      const action = document.getElementById('otBLAction').value;
+      const ketLain = document.getElementById('otBLKetLain').value || '-';
+      const tbody = document.getElementById('otTableBodyBL');
+
+      // Format tanggal display
+      const d = new Date(tgl);
+      const day = String(d.getDate()).padStart(2, '0');
+      const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+      const monthStr = months[d.getMonth()] || 'Nov';
+      const yearStr = d.getFullYear() || 2026;
+      const monthNum = String(d.getMonth() + 1).padStart(2, '0');
+      const tglDisplay = `${day} ${monthStr} ${yearStr}`;
+
+      const totalRows = tbody.querySelectorAll('tr').length;
+      const nextNo = totalRows + 1;
+
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-no', String(nextNo));
+      tr.setAttribute('data-branch', 'Rayon Timur');
+      tr.setAttribute('data-teknisi', nama);
+      tr.setAttribute('data-tgl', tglDisplay);
+      tr.setAttribute('data-start', jamMulai);
+      tr.setAttribute('data-end', jamSelesai);
+      tr.setAttribute('data-durasi', durasi);
+      tr.setAttribute('data-grade', 'Pending SA');
+      tr.setAttribute('data-fee', '-');
+      tr.setAttribute('data-problem', problem);
+      tr.setAttribute('data-deskripsi', deskripsi);
+      tr.setAttribute('data-action', action);
+      tr.setAttribute('data-ket', ketLain);
+      tr.setAttribute('data-bulan', monthNum);
+      tr.setAttribute('data-tahun', String(yearStr));
+      tr.setAttribute('data-status', 'PENDING');
+
+      tr.innerHTML = `
+        <td>${nextNo}</td>
+        <td><strong>${nama}</strong></td>
+        <td>${tglDisplay}</td>
+        <td>${durasi}</td>
+        <td><span class="status-pill pending" style="font-size:11px;">Pending SA</span></td>
+        <td><span style="color:#94a3b8;">Menunggu SA</span></td>
+        <td>${problem}</td>
+        <td><span class="status-pill pending">Pending Approval SA</span></td>
+        <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+      `;
+      tbody.prepend(tr);
+
+      // Juga tambahkan ke antrian validasi Super Admin
+      const tbodySA = document.getElementById('tbodyPengajuanSA');
+      if (tbodySA) {
+        const nextIdSA = tbodySA.querySelectorAll('tr').length + 1;
+        const trSA = document.createElement('tr');
+        trSA.setAttribute('data-id', String(nextIdSA));
+        trSA.setAttribute('data-branch', 'Rayon Timur');
+        trSA.setAttribute('data-teknisi', nama);
+        trSA.setAttribute('data-tgl', tglDisplay);
+        trSA.setAttribute('data-start', jamMulai);
+        trSA.setAttribute('data-end', jamSelesai);
+        trSA.setAttribute('data-durasi', durasi);
+        trSA.setAttribute('data-problem', problem);
+        trSA.setAttribute('data-deskripsi', deskripsi);
+        trSA.setAttribute('data-action', action);
+        trSA.setAttribute('data-ket', ketLain);
+        trSA.setAttribute('data-bl', 'Haryo Danu (BL)');
+        trSA.innerHTML = `
+          <td>${nextIdSA}</td>
+          <td><strong>Rayon Timur</strong></td>
+          <td>${nama}</td>
+          <td>${tglDisplay}</td>
+          <td>${jamMulai} - ${jamSelesai}</td>
+          <td>${durasi}</td>
+          <td>${problem}</td>
+          <td>Haryo Danu (BL)</td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-success" style="padding:4px 8px; font-size:11px;" onclick="openModalApproveSA(this)">Approve</button>
+              <button class="btn btn-outline" style="padding:4px 8px; font-size:11px; color:#ef4444;" onclick="rejectSA(this)">Tolak</button>
+            </div>
+          </td>
+        `;
+        tbodySA.prepend(trSA);
+      }
+
+      // Reset form dan tutup modal
+      document.getElementById('formOvertimeBL').reset();
+      hitungDurasiFormOT();
+      closeModalPengajuanOT();
+      filterRiwayatOTBL();
+      showToast(`Pengajuan lembur ${nama} berhasil disubmit (Status: Pending Approval SA).`);
+    }
+
+    // ACTION SUPER ADMIN APPROVE DENGAN SELEKSI GRADE
+    let currentApproveRow = null;
+
+    function openModalApproveSA(btn) {
+      currentApproveRow = btn.closest('tr');
+      const teknisi = currentApproveRow.getAttribute('data-teknisi') || '-';
+      const branch = currentApproveRow.getAttribute('data-branch') || '-';
+      const tgl = currentApproveRow.getAttribute('data-tgl') || '-';
+      const durasi = currentApproveRow.getAttribute('data-durasi') || '-';
+      const problem = currentApproveRow.getAttribute('data-problem') || currentApproveRow.getAttribute('data-ket') || '-';
+
+      document.getElementById('saModalTeknisi').innerText = teknisi;
+      document.getElementById('saModalBranch').innerText = branch;
+      document.getElementById('saModalTgl').innerText = tgl;
+      document.getElementById('saModalDurasi').innerText = durasi;
+      document.getElementById('saModalKet').innerText = problem;
+
+      document.getElementById('modalApproveSA').classList.add('show');
+    }
+
+    function closeModalApproveSA() {
+      document.getElementById('modalApproveSA').classList.remove('show');
+      currentApproveRow = null;
+    }
+
+    function submitApprovalGradeSA(e) {
+      e.preventDefault();
+      if (!currentApproveRow) return;
+
+      const selectedRadio = document.querySelector('input[name="gradeOption"]:checked');
+      const grade = selectedRadio.value;
+      const fee = selectedRadio.getAttribute('data-fee');
+      const saNote = document.getElementById('saApproveNote').value;
+
+      const teknisi = currentApproveRow.getAttribute('data-teknisi');
+      const branch = currentApproveRow.getAttribute('data-branch');
+      const tgl = currentApproveRow.getAttribute('data-tgl');
+      const start = currentApproveRow.getAttribute('data-start') || '18:00';
+      const end = currentApproveRow.getAttribute('data-end') || '21:00';
+      const durasi = currentApproveRow.getAttribute('data-durasi');
+      const problem = currentApproveRow.getAttribute('data-problem') || currentApproveRow.getAttribute('data-ket') || 'Penanganan Lembur';
+      const deskripsi = currentApproveRow.getAttribute('data-deskripsi') || 'Aktivitas pekerjaan lembur teknisi di lapangan.';
+      const action = currentApproveRow.getAttribute('data-action') || 'Penanganan dan perbaikan diselesaikan sesuai SOP.';
+      const ket = saNote ? `${problem} (${saNote})` : (currentApproveRow.getAttribute('data-ket') || problem);
+
+      // Update baris di tabel pengajuan SA
+      currentApproveRow.style.background = '#f0fdf4';
+      const cellAksi = currentApproveRow.querySelector('td:last-child');
+      cellAksi.innerHTML = `<span class="status-pill approved" style="font-weight:700;">Approved: ${grade} (${fee})</span>`;
+
+      // Update baris terkait di tabel pengajuan BL jika ada
+      document.querySelectorAll('#otTableBodyBL tr').forEach(r => {
+        if (r.getAttribute('data-teknisi') === teknisi && r.getAttribute('data-tgl') === tgl) {
+          r.setAttribute('data-grade', grade);
+          r.setAttribute('data-fee', fee);
+          r.setAttribute('data-status', 'APPROVED');
+          const tdGrade = r.querySelector('td:nth-child(5)');
+          const tdFee = r.querySelector('td:nth-child(6)');
+          const tdStatus = r.querySelector('td:nth-child(8)');
+          if (tdGrade) tdGrade.innerHTML = `<span class="status-pill approved" style="font-weight:700;">${grade}</span>`;
+          if (tdFee) tdFee.innerHTML = `<strong style="color:#059669;">${fee}</strong>`;
+          if (tdStatus) tdStatus.innerHTML = `<span class="status-pill approved">Approved SA</span>`;
+        }
+      });
+
+      // Update atau buat baris di tabel overtime pribadi jika teknisi adalah Damar
+      if (teknisi.includes('Damar')) {
+        const tbodyPribadi = document.getElementById('tbodyOTPribadi');
+        if (tbodyPribadi) {
+          const nextNoPribadi = tbodyPribadi.querySelectorAll('tr').length + 1;
+          const trPribadi = document.createElement('tr');
+          trPribadi.setAttribute('data-no', String(nextNoPribadi));
+          trPribadi.setAttribute('data-branch', branch);
+          trPribadi.setAttribute('data-teknisi', teknisi);
+          trPribadi.setAttribute('data-tgl', tgl);
+          trPribadi.setAttribute('data-start', start);
+          trPribadi.setAttribute('data-end', end);
+          trPribadi.setAttribute('data-durasi', durasi);
+          trPribadi.setAttribute('data-grade', grade);
+          trPribadi.setAttribute('data-fee', fee);
+          trPribadi.setAttribute('data-problem', problem);
+          trPribadi.setAttribute('data-deskripsi', deskripsi);
+          trPribadi.setAttribute('data-action', action);
+          trPribadi.setAttribute('data-ket', ket);
+          trPribadi.setAttribute('data-bulan', '11');
+          trPribadi.setAttribute('data-tahun', '2026');
+          trPribadi.setAttribute('data-status', 'APPROVED');
+
+          trPribadi.innerHTML = `
+            <td>${nextNoPribadi}</td>
+            <td>${tgl}</td>
+            <td>${durasi}</td>
+            <td><span class="status-pill approved" style="font-weight:700;">${grade}</span></td>
+            <td><strong style="color:#059669;">${fee}</strong></td>
+            <td>${problem}</td>
+            <td><span class="status-pill approved">Approved Super Admin</span></td>
+            <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+          `;
+          tbodyPribadi.prepend(trPribadi);
+        }
+      }
+
+      // Masukkan ke tabel history validasi nasional Super Admin
+      const tbodyHistory = document.getElementById('tbodyHistoryValidasiSA');
+      if (tbodyHistory) {
+        const nextNoHist = tbodyHistory.querySelectorAll('tr').length + 1;
+        const trHist = document.createElement('tr');
+        trHist.setAttribute('data-no', String(nextNoHist));
+        trHist.setAttribute('data-branch', branch);
+        trHist.setAttribute('data-teknisi', teknisi);
+        trHist.setAttribute('data-tgl', tgl);
+        trHist.setAttribute('data-start', start);
+        trHist.setAttribute('data-end', end);
+        trHist.setAttribute('data-durasi', durasi);
+        trHist.setAttribute('data-grade', grade);
+        trHist.setAttribute('data-fee', fee);
+        trHist.setAttribute('data-problem', problem);
+        trHist.setAttribute('data-deskripsi', deskripsi);
+        trHist.setAttribute('data-action', action);
+        trHist.setAttribute('data-ket', ket);
+        trHist.setAttribute('data-bulan', '11');
+        trHist.setAttribute('data-tahun', '2026');
+        trHist.setAttribute('data-status', 'APPROVED');
+
+        const badgeColor = grade === 'Grade A' ? '#dcfce7; color:#166534' :
+                           grade === 'Grade B' ? '#e0e7ff; color:#3730a3' :
+                           grade === 'Grade C' ? '#fef3c7; color:#92400e' : '#f1f5f9; color:#475569';
+        const feeColor = grade === 'Grade A' ? '#059669' :
+                         grade === 'Grade B' ? '#2563eb' :
+                         grade === 'Grade C' ? '#d97706' : '#64748b';
+
+        trHist.innerHTML = `
+          <td>${nextNoHist}</td>
+          <td>${branch}</td>
+          <td>${teknisi}</td>
+          <td>${tgl}</td>
+          <td>${durasi}</td>
+          <td><span class="status-pill" style="background:${badgeColor}; font-weight:700;">${grade}</span></td>
+          <td><strong style="color:${feeColor};">${fee}</strong></td>
+          <td>${problem}</td>
+          <td><span class="status-pill approved">Approved Final</span></td>
+          <td><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="bukaModalDetailOT(this)">Detail</button></td>
+        `;
+        tbodyHistory.prepend(trHist);
+      }
+
+      closeModalApproveSA();
+      showToast(`Overtime ${teknisi} disetujui dengan ${grade} (${fee}). Data otomatis masuk ke History Validasi.`);
+    }
+
+    function rejectSA(btn) {
+      const row = btn.closest('tr');
+      row.style.background = '#fef2f2';
+      btn.parentElement.innerHTML = '<span class="status-pill rejected">Ditolak SA</span>';
+      showToast('Pengajuan overtime ditolak.');
+    }
+
+    // TOAST HELPER
+    function showToast(text) {
+      const toast = document.getElementById('toastBox');
+      document.getElementById('toastMsg').innerText = text;
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    // Inisialisasi awal role BL
+    switchRole('bl');
+  </script>
+</body>
+</html>
